@@ -1,0 +1,22 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "A Quarto Website"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/
+        aria-label: GitHub
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    highlight-style: github

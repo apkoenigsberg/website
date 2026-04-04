@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+This is a "hello world" example website built with [Quarto](https://quarto.org), the next-generation publishing system from [Posit](https://posit.co) (formerly RStudio).
