@@ -1,0 +1,4 @@
+# Deployment is handled manually via `quarto publish netlify`.
+# Tell Netlify to skip automatic CI builds on git push.
+[build]
+  ignore = "exit 0"
