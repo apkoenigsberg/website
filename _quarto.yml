@@ -15,10 +15,6 @@ website:
         href: https://github.com/
         aria-label: GitHub
 
-execute:
-  eval: false
-  echo: true
-
 format:
   html:
     theme: cosmo
