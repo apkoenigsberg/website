@@ -1,0 +1,21 @@
+# Hugo generated output
+/public/
+/resources/
+
+# R/blogdown generated files
+*.html
+!themes/**/*.html
+!layouts/**/*.html
+
+# R cache/output directories
+*_cache/
+*_files/
+
+# R environment
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS
+.DS_Store
+Thumbs.db
