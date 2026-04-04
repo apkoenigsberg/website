@@ -1,0 +1,28 @@
+---
+title: "A Plain Markdown Post"
+date: "2016-12-30"
+---
+
+This is a post written in plain Markdown (`*.md`) instead of R Markdown (`*.qmd` with R chunks). The major differences are:
+
+1. You cannot run any R code in a plain Markdown document, whereas in a Quarto document, you can embed R code chunks (```` ```{r} ````);
+2. A plain Markdown post is rendered directly through [Pandoc](https://pandoc.org), while a Quarto document with code is first executed by [**knitr**](https://yihui.org/knitr/) or [Jupyter](https://jupyter.org), then rendered by Pandoc.
+
+You can write task lists in Markdown:
+
+- [x] Write an R package.
+- [ ] Write a book.
+- [ ] ...
+- [ ] Profit!
+
+Quarto uses Pandoc natively, so LaTeX math works in all documents — no backtick workarounds needed. Inline math: $S_n = \sum_{i=1}^n X_i$. Display math:
+
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
+
+When creating a new post, you can use the Quarto CLI:
+
+```bash
+quarto create post "Post Title"
+```

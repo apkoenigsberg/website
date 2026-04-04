@@ -1,0 +1,16 @@
+# Quarto generated output
+/_site/
+/.quarto/
+
+# R/Quarto generated files
+*_cache/
+*_files/
+
+# R environment
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS
+.DS_Store
+Thumbs.db
