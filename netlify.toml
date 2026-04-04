@@ -1,4 +1,7 @@
 # Deployment is handled manually via `quarto publish netlify`.
-# Tell Netlify to skip automatic CI builds on git push.
+# Override the UI build settings so Netlify doesn't try to run Hugo.
+# ignore = "exit 0" skips production builds; the no-op command handles PR previews.
 [build]
+  command = "mkdir -p _site"
+  publish = "_site"
   ignore = "exit 0"
