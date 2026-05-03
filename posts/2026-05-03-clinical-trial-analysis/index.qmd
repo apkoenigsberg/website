@@ -1,0 +1,43 @@
+---
+title: "Clinical Trial Analysis: Datasets and a Practical Approach"
+date: "2026-05-03"
+categories: [data science, clinical trials, machine learning]
+---
+
+Here's a practical rundown of what's available and how each source would serve a project focused on **enrollment forecasting** and **site selection** in clinical trials.
+
+## The Core Dataset: AACT (ClinicalTrials.gov)
+
+This is your primary source and honestly covers most of what you need for both problems.
+
+AACT is a publicly available relational database containing all protocol and result data elements about every study registered in ClinicalTrials.gov. Content is downloaded daily and loaded into AACT. You can download pipe-delimited text files to import AACT data into any database or analysis tool — each file corresponds to a table in the AACT database schema.
+
+For your purposes, the most useful tables are:
+
+- **Studies** — start/completion dates, phase, enrollment status, planned vs. actual enrollment, number of arms
+- **Facilities** — site names and locations (country, city, state) — this is your site-selection data
+- **Calculated_values** — AACT pre-computes fields like `number_of_facilities` and `actual_duration` for you
+- **Countries** — number of sites per country per trial
+- **Milestones** — participant flow data where reported
+
+The key limitation: AACT includes calculated values such as `number_of_facilities` and `actual_duration`, but site-level enrollment counts (i.e., how many patients each individual site enrolled) are generally not reported — sponsors aren't required to break enrollment down by site. So you'll be working at the study level and facility-count level, not true site-level performance data.
+
+## Supplementary Sources Worth Adding
+
+**PyTrial (GitHub)** — This is a ready-made ML benchmark library that's highly relevant. PyTrial provides benchmarks and open-source implementations of ML algorithms for clinical trial design and operations, covering tasks including trial site selection, trial outcome prediction, and patient-trial matching, with 23 ML-ready datasets and Jupyter Notebook examples. This could save you a lot of data prep time.
+
+**TrialBench** — A curated suite of datasets covering multi-modal data and 8 prediction challenges in clinical trial design, including prediction of trial duration, patient dropout rate, and trial approval outcome. Available on GitHub. The trial duration prediction task is directly relevant to enrollment forecasting.
+
+**WHO ICTRP** — The WHO ICTRP aggregates data from ClinicalTrials.gov and 17 other national registries, making it the largest clinical trial platform globally. A dataset of 689,793 records covering trials registered from 1990–2020 has been analyzed in published work. Useful if you want international site distribution, but AACT is cleaner to work with.
+
+## Practical Recommendation
+
+For a blog-post-scale side project, here's how I'd structure it:
+
+1. **Start with AACT as your backbone** — download the pipe-delimited flat files, no database setup needed. Filter to completed interventional trials with results reported (Phase 2/3 is the sweet spot — enough sites to be interesting, enough data to be reliable).
+
+2. **Enrollment forecasting** — model `actual_duration` as a function of phase, therapeutic area, number of facilities, planned enrollment, and sponsor type. You can reconstruct the Poisson-style rate modeling from the literature using study-level data, and compare naive vs. model-based forecasts.
+
+3. **Site selection** — use the facilities table to build a site-scoring model: which countries/regions historically complete trials faster or closer to planned enrollment? This maps directly to ranking/scoring work from lender segmentation.
+
+4. **Enrichment** — optionally join with ClinicalTrials.gov's REST API (no key required) for eligibility criteria text if you want to add a protocol complexity feature.
