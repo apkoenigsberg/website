@@ -1,0 +1,149 @@
+---
+title: "Anomaly Methods 1: ARIMA Intervention Detection (Chen–Liu)"
+subtitle: "How official statistical agencies find outliers — and why they type them"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+*Teaching note, not a blog post. Data: IMF IMTS monthly goods exports (levels, USD millions), the same file behind the trade posts.*
+
+## The idea
+
+Everything we've built so far asks "is this month far from a baseline?" ARIMA intervention detection asks a sharper question: **"is this month inconsistent with a fitted model of the series' own dynamics — and if so, what *shape* is the inconsistency?"**
+
+The method comes from Chen & Liu (1993) and it's what runs inside X-13ARIMA-SEATS at the US Census Bureau — meaning the official trade statistics you download have already been through a version of this. The workflow:
+
+1. **Fit a seasonal ARIMA model** to the series. The classic default for monthly economic data is the "airline model," ARIMA(0,1,1)(0,1,1)₁₂ on logs: difference once to remove trend, difference at lag 12 to remove seasonality, and let two moving-average terms mop up. It's a remarkably good default — most macro series are approximately this.
+2. **Scan the residuals** for the single most aberrant point.
+3. **Ask what kind of aberration fits best.** This is the distinctive move. Three shapes are tested, each a regressor added to the model:
+   - **AO — additive outlier**: a one-month blip. The dummy is 1 at time $t^*$, 0 elsewhere. Data glitches and one-off shipments look like this.
+   - **LS — level shift**: a permanent step. The dummy is 0 before $t^*$, 1 from $t^*$ on. Wars, sanctions regimes, and structural breaks look like this.
+   - **TC — temporary change**: a spike that decays geometrically ($\delta^{k}$, usually $\delta = 0.7$). Strikes, port closures, and short disruptions look like this.
+4. **Keep the best-fitting type if its coefficient is significant** (|t| above ~3.5 — deliberately strict, because we scanned for the worst point first), add it to the model, and repeat until nothing significant remains.
+
+The payoff over threshold rules: the model handles trend and seasonality *natively* (no phantom-seasonality problem), and the **typing** answers the question our earlier posts kept circling — "is this a blip or a new normal?" — inside the procedure itself.
+
+## A simplified implementation
+
+What follows is the teaching version of Chen–Liu: same model, same three outlier types, same iterate-and-refit loop, minus the production details (joint re-estimation of all effects, backward deletion, variance re-estimation). R's `tsoutliers` package implements the full algorithm; treat the results below as "Chen–Liu, first approximation."
+
+```{python}
+#| label: setup
+
+import sys
+sys.path.insert(0, ".")
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from _data import load_levels, setup_plots, mark_events, NAMES
+
+setup_plots()
+levels = load_levels()
+
+def make_regressor(index, t_star, kind, delta=0.7):
+    x = pd.Series(0.0, index=index)
+    pos = index.get_loc(t_star)
+    if kind == "AO":
+        x.iloc[pos] = 1.0
+    elif kind == "LS":
+        x.iloc[pos:] = 1.0
+    elif kind == "TC":
+        for k in range(pos, len(index)):
+            x.iloc[k] = delta ** (k - pos)
+    return x
+
+def detect_interventions(y, t_crit=3.5, max_outliers=6):
+    """Iterative AO/LS/TC detection on log(levels) with an airline model."""
+    ly = np.log(y.dropna())
+    exog = pd.DataFrame(index=ly.index)
+    found = []
+    for _ in range(max_outliers):
+        mod = SARIMAX(ly, order=(0, 1, 1), seasonal_order=(0, 1, 1, 12),
+                      exog=exog if exog.shape[1] else None)
+        base = mod.fit(disp=False)
+        resid = pd.Series(base.resid, index=ly.index)
+        resid.iloc[:13] = 0.0            # differencing warm-up isn't meaningful
+        t_star = resid.abs().idxmax()
+
+        best = None
+        for kind in ["AO", "LS", "TC"]:
+            cand = exog.copy()
+            cand[f"{kind}_{t_star:%Y%m}"] = make_regressor(ly.index, t_star, kind)
+            try:
+                fit = SARIMAX(ly, order=(0, 1, 1), seasonal_order=(0, 1, 1, 12),
+                              exog=cand).fit(disp=False)
+            except Exception:
+                continue
+            tval = fit.tvalues.get(f"{kind}_{t_star:%Y%m}", 0.0)
+            if best is None or fit.aic < best[0]:
+                best = (fit.aic, kind, tval, cand)
+        if best is None or abs(best[2]) < t_crit:
+            break
+        _, kind, tval, exog = best
+        coef_name = f"{kind}_{t_star:%Y%m}"
+        found.append({"date": t_star, "type": kind, "t": round(float(tval), 1)})
+    return found
+```
+
+```{python}
+#| label: fig-interventions
+#| fig-cap: "Detected interventions on log export levels. AO = one-month blip (circle), LS = permanent level shift (square), TC = decaying spike (triangle). Red dashed lines mark known events."
+
+COUNTRIES = ["UKR", "VEN", "MEX"]
+MARKERS = {"AO": ("o", "#4c78a8"), "LS": ("s", "#e45756"), "TC": ("^", "#f58518")}
+
+fig, axes = plt.subplots(len(COUNTRIES), 1, figsize=(10, 3.2 * len(COUNTRIES)),
+                         constrained_layout=True)
+results = {}
+for ax, code in zip(axes, COUNTRIES):
+    y = levels[code].dropna()
+    found = detect_interventions(y)
+    results[code] = found
+    ax.plot(y.index, y.values, color="steelblue", lw=1.4)
+    ax.set_yscale("log")
+    for f in found:
+        m, c = MARKERS[f["type"]]
+        ax.plot([f["date"]], [y.loc[f["date"]]], marker=m, color=c, ms=9,
+                mec="white", mew=1, zorder=5)
+        ax.annotate(f"{f['type']}", (f["date"], y.loc[f["date"]]),
+                    xytext=(0, 12), textcoords="offset points",
+                    ha="center", fontsize=8, fontweight="bold", color=c)
+    ax.set_title(f"{NAMES[code]} — {len(found)} interventions detected")
+    ax.set_ylabel("USD M (log scale)")
+    mark_events(ax, code)
+plt.show()
+```
+
+```{python}
+#| label: tbl-interventions
+#| tbl-cap: "All detections, with type and t-statistic."
+
+from IPython.display import Markdown, display
+rows = []
+for code, found in results.items():
+    for f in found:
+        rows.append({"Country": NAMES[code], "Date": f"{f['date']:%Y-%m}",
+                     "Type": f["type"], "|t|": abs(f["t"])})
+display(Markdown(pd.DataFrame(rows).to_markdown(index=False)))
+```
+
+## Reading the output
+
+The thing to notice is the **types**, not just the dates. Where our rolling-average detector could only say "Ukraine, early 2022, weird," this method decomposes the war into its statistical signature — typically a level shift at the invasion (trade stepped down and *stayed* down) with additive or temporary-change outliers around it (the chaotic first months). Venezuela's slow collapse is the hard case for any single-point method, and it's instructive to see what the model does with it: a decline spread over 18 months doesn't produce one dramatic residual, so Chen–Liu tends to represent it as one or two level shifts part-way down the slope — the model's way of saying "the mean moved," even if it can't say the movement was gradual. That's a genuine limitation: **intervention detection types *points*; it doesn't model *ramps*** (changepoint methods, note 3, are better there).
+
+## Strengths, weaknesses, knobs
+
+- **Strengths:** seasonality and trend handled by the model, not smoothed away; the AO/LS/TC typing is directly decision-relevant; strict t-thresholds keep the false-alarm rate honest; it's the regulatory-grade standard, so results are defensible.
+- **Weaknesses:** assumes the ARIMA form is roughly right (garbage model → garbage outliers); struggles with gradual ramps; iterative refitting gets slow on thousands of series; needs a complete series (Yemen's gaps disqualify it here without imputation).
+- **Knobs:** the critical t-value (3.5 default; lower finds more, less believable), the TC decay δ, and the ARIMA order (or let auto-selection pick it, as X-13 does).
+
+**Where to go for the real thing:** R `tsoutliers::tso()` (full Chen–Liu), or X-13ARIMA-SEATS via `seasonal::seas()` — both would be a natural benchmark against this simplified version.

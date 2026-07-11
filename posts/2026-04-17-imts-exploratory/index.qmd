@@ -1,16 +1,14 @@
 ---
 title: "Trade as a Signal: Detecting Conflict-Driven Anomalies in IMF Merchandise Trade Data"
 date: "2026-04-17"
-categories: [data, trade, conflict, IMF, IMTS, ACLED, anomaly-detection]
+categories: [trade, conflict, anomaly-detection, imf-imts, acled, python]
 description: "Using rolling-average deviation and permutation testing to find where political violence and trade disruption coincide — and asking whether that overlap is more than chance."
 format:
   html:
     toc: true
     toc-depth: 3
-    code-fold: true
-    code-summary: "Show code"
 execute:
-  echo: true
+  echo: false
   warning: false
   message: false
   freeze: auto
@@ -19,9 +17,7 @@ execute:
 ::: {.callout-note}
 ## A note on how this was made
 
-This post is an exercise in what I've been calling *vibe coding* — analytical work done entirely through natural language, on my phone, using [Claude Dispatch](https://claude.ai). No IDE, no terminal, no keyboard. I described what I wanted to explore, Claude wrote the code and ran it, I reviewed the charts and pushed back when something looked wrong, and we iterated. The only thing I did manually was download the source data files.
-
-The code you see below is the direct output of that process. I've cleaned up the narrative, but the analysis is exactly what emerged from that back-and-forth.
+This analysis was built through conversation with Claude, working from my phone: I set the questions and the analytical direction, reviewed every chart, and pushed back when something looked wrong; Claude wrote and ran the code. The only manual step was downloading the source data files. I've cleaned up the narrative since, but the analysis is what emerged from that back-and-forth.
 :::
 
 ## Motivation
@@ -31,6 +27,8 @@ When a country's trade volumes shift suddenly, something happened. Maybe it's a 
 The IMF's International Merchandise Trade Statistics (IMTS) dataset gives us monthly goods exports and imports for 227 reporting countries, all the way back to 2017. The ACLED dataset gives us monthly counts of political violence events for 245 countries over the same period.
 
 The question this post explores: **can we detect anomalous months in trade data, apply the same detection to violence data, and test whether those anomalies co-occur more often than chance?**
+
+The workflow, start to finish: get oriented in the trade data and profile a few countries whose stories span the range of what it can contain; build and compare **three different methods for flagging anomalous months**, and understand where each succeeds and fails; apply the winning method to the conflict data, which comes from an entirely separate source; and finally **test co-occurrence** — country by country with binomial and permutation tests, then globally across all testable countries.
 
 The short answer is: sometimes yes, but less often than you might hope, and mostly for the countries where you'd expect it.
 
@@ -139,8 +137,6 @@ ax.plot(_dates, _global_ts.values, color="steelblue", lw=1.8)
 
 ax.axvspan(pd.Timestamp("2020-03-01"), pd.Timestamp("2020-08-01"),
            alpha=0.12, color="gray", label="COVID shock")
-ax.axvspan(pd.Timestamp("2021-10-01"), pd.Timestamp("2023-01-01"),
-           alpha=0.08, color="peru", label="Commodity surge")
 
 ax.yaxis.set_major_formatter(mtick.FuncFormatter(lambda x, _: f"${x:,.0f}B"))
 ax.set_ylabel("USD billions / month")
@@ -150,15 +146,15 @@ plt.tight_layout()
 plt.show()
 ```
 
-The COVID shock in early 2020 is the clearest feature — a sharp cliff followed by a rapid recovery. The commodity surge from late 2021 through 2022 (driven by energy prices post-Ukraine invasion and supply chain disruptions) pushed aggregate trade values to all-time highs before normalising through 2023–2024.
+The COVID shock in early 2020 is the clearest feature — a sharp cliff followed by a rapid recovery. It's a useful preview of what a *global* disruption looks like in this data; the rest of the post hunts for disruptions that hit one country at a time.
 
 ---
 
 ## Country Deep-Dives
 
-With the global picture established, we look at six countries selected for their varied relationships with political violence and economic disruption: Ukraine, Denmark, Venezuela, Yemen, Kenya, and Mexico.
+With the global picture established, we profile three countries chosen to span the range of what this data can contain: **Ukraine** — a sharp structural break, co-located with violence; **Venezuela** — a steady multi-year decline; and **Yemen** — chronic conflict where the disruption shows up as much in the data's quality as in its values.
 
-For each country, four panels tell the story: gross trade flows, trade balance, political violence events, and the share of trade with each country's top 10 bilateral partners over time.
+For each country, four panels tell the story: gross trade flows, trade balance, political violence events, and the share of trade with each country's top 10 bilateral partners over time. (The anomaly-detection sections that follow still run on a broader six-country set that adds Yemen, Kenya, and Mexico.)
 
 ```{python}
 #| label: country-functions
@@ -264,12 +260,13 @@ def _plot_country(code, name):
 
 ```{python}
 #| label: fig-countries
-#| fig-cap: "2×2 country panels for all six target countries."
-for code, name in TARGETS.items():
-    _plot_country(code, name)
+#| fig-cap: "2×2 country panels for the three profile countries."
+DEEPDIVE = ["UKR", "VEN", "YEM"]
+for code in DEEPDIVE:
+    _plot_country(code, TARGETS[code])
 ```
 
-A few things jump out immediately. Ukraine's trade collapses sharply in early 2022 — and the Russia share in Panel 4 drops to near-zero at exactly the same moment. Venezuela's trade contracted steadily from 2018 through 2020, losing about 65% of its volume before stabilising. Yemen's trade is characteristically volatile throughout, driven by the ongoing blockade and conflict. Denmark, by contrast, is almost disappointingly quiet.
+A few things jump out immediately. Ukraine's trade collapses sharply in early 2022 — and the Russia share in Panel 4 drops to near-zero at exactly the same moment. Venezuela's trade contracted steadily from 2018 through 2020, losing about 65% of its volume before stabilising — no single dramatic month, just a long slide. Yemen is a different animal entirely: small volumes, erratic partners, and gaps — a reminder that in an active conflict, the measurement system degrades along with the economy, and an anomaly detector has to cope with both.
 
 ---
 
@@ -436,7 +433,7 @@ The three methods complement each other. Cross-country only fires when something
 
 ## Applying the Same Logic to Violence Data
 
-The rolling-average deviation method transfers directly to the ACLED violence data. The same intuition applies: we're not asking whether a country is violent in absolute terms, but whether its current violence level is unusual relative to its own recent baseline. The chunk below builds a monthly violence series per country; the resulting anomaly flags appear alongside the trade flags in the per-country panels of the next section.
+The rolling-average deviation method transfers directly to the ACLED violence data. The same intuition applies: we're not asking whether a country is violent in absolute terms, but whether its current violence level is unusual relative to its own recent baseline. We build a monthly violence series per country; the resulting anomaly flags appear alongside the trade flags in the per-country panels of the next section.
 
 ```{python}
 #| label: violence-anomalies
@@ -918,7 +915,7 @@ The entire analysis in this post — from loading the data to the final signific
 
 The only manual step was downloading the source data files before the session began.
 
-This was an intentional experiment in what I've been calling *vibe coding* — directing analytical work through natural language rather than writing code. A few things stood out:
+This was an intentional experiment in vibe coding — directing analytical work through natural language rather than writing the code myself. A few things stood out:
 
 The back-and-forth worked better than I expected for **diagnosis**. When Venezuela's 2019 drop wasn't flagged, explaining why in natural language ("the data looks the same every year") prompted an immediate and correct root-cause analysis. The conversation naturally surfaces trade-offs that code comments rarely capture.
 

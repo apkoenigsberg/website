@@ -1,0 +1,111 @@
+---
+title: "Anomaly Methods 4: Forecast Prediction Intervals"
+subtitle: "The 'surprise = anomaly' idea done properly — with calibration as the acid test"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+*Teaching note, not a blog post. Data: IMF IMTS monthly goods exports (levels), as in notes 1–3.*
+
+## The idea
+
+Part 1 of the trade series built this intuition by hand: forecast next month, treat big forecast errors as anomalies. The hand-rolled version compared errors to "2σ of the residuals." The grown-up version asks the *model* for its uncertainty: a fitted SARIMA doesn't just produce a point forecast, it produces a full predictive distribution — so "anomalous" becomes "**outside the 99% prediction interval**," a statement with an exact, checkable meaning.
+
+Two concepts make this family respectable:
+
+**Prediction intervals, not confidence intervals.** A confidence interval says "where is the *mean*"; a prediction interval says "where will the *next observation* land," which includes both parameter uncertainty and irreducible noise. Anomaly detection needs the second, wider one — using the first is a classic way to generate false alarms.
+
+**Calibration.** A 95% interval should contain about 95% of future observations. That's an empirical claim you can test on your own data, and it's the acid test this note runs: if the model's 95% intervals only cover 85% of reality, every "anomaly" it reports is suspect, because the yardstick itself is broken. Calibration checking is the habit that separates monitoring systems people trust from dashboards people mute.
+
+## Rolling one-step-ahead intervals
+
+Same honest expanding-window protocol as the posts: at each month, fit only on the past, predict one step, record the interval.
+
+```{python}
+#| label: setup
+
+import sys
+sys.path.insert(0, ".")
+import warnings
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from _data import load_levels, setup_plots, mark_events, NAMES
+
+warnings.filterwarnings("ignore")
+setup_plots()
+levels = load_levels()
+
+def rolling_intervals(y, start=36, alpha_flag=0.01, alpha_cal=0.05):
+    """Expanding-window one-step SARIMA forecasts with two interval widths:
+    99% for flagging, 95% for the calibration check."""
+    ly = np.log(y.dropna().asfreq("MS").interpolate())
+    rows = []
+    for t in range(start, len(ly)):
+        fit = SARIMAX(ly.iloc[:t], order=(0, 1, 1),
+                      seasonal_order=(0, 1, 1, 12)).fit(disp=False)
+        fc = fit.get_forecast(1)
+        lo99, hi99 = fc.conf_int(alpha=alpha_flag).iloc[0]
+        lo95, hi95 = fc.conf_int(alpha=alpha_cal).iloc[0]
+        rows.append({"date": ly.index[t], "actual": ly.iloc[t],
+                     "mean": fc.predicted_mean.iloc[0],
+                     "lo99": lo99, "hi99": hi99, "lo95": lo95, "hi95": hi95})
+    df = pd.DataFrame(rows).set_index("date")
+    df["flag"] = (df.actual < df.lo99) | (df.actual > df.hi99)
+    df["in95"] = (df.actual >= df.lo95) & (df.actual <= df.hi95)
+    return df
+```
+
+```{python}
+#| label: fig-intervals
+#| fig-cap: "One-step-ahead SARIMA forecasts with 99% prediction intervals (band). Red dots = observations outside the band. The title reports the 95%-interval empirical coverage — the calibration check."
+
+COUNTRIES = ["UKR", "VEN", "MEX"]
+fig, axes = plt.subplots(len(COUNTRIES), 1, figsize=(10, 3.3 * len(COUNTRIES)),
+                         constrained_layout=True)
+for ax, code in zip(axes, COUNTRIES):
+    r = rolling_intervals(levels[code])
+    ax.fill_between(r.index, np.exp(r.lo99), np.exp(r.hi99),
+                    color="steelblue", alpha=0.18, label="99% PI")
+    ax.plot(r.index, np.exp(r["mean"]), color="steelblue", lw=1.0, ls="--",
+            label="forecast")
+    ax.plot(r.index, np.exp(r.actual), color="black", lw=1.2, label="actual")
+    fl = r[r.flag]
+    ax.plot(fl.index, np.exp(fl.actual), "o", color="#e45756", ms=6,
+            mec="white", zorder=5, label=f"outside 99% (n={len(fl)})")
+    cov = r.in95.mean()
+    ax.set_yscale("log")
+    ax.set_title(f"{NAMES[code]} — 95% PI empirical coverage: {cov:.0%} "
+                 f"({'well-calibrated' if 0.90 <= cov <= 0.99 else 'MISCALIBRATED'})")
+    ax.set_ylabel("USD M (log)")
+    ax.legend(fontsize=7, frameon=False, loc="lower left")
+    mark_events(ax, code)
+plt.show()
+```
+
+## Reading the output
+
+Three lessons live in these panels:
+
+**The flags are few and mean something.** A 99% one-step interval flags ~1% of months by construction — so on ~6 years of evaluated months, roughly one free flag per country. Anything beyond that is real surprise. Compare this to the flag-count inflation we fought with 2σ rules.
+
+**The coverage line is the trust meter.** Where the 95% interval covers ~95% of actuals, the model's uncertainty is honest and its anomalies are interpretable. Watch for the disrupted countries: a war *should* wreck calibration (the model was built on a world that ended), and a coverage number well below 95% is the quantitative version of "this model no longer describes this country." That, too, is information — arguably the most important flag in the whole note.
+
+**The interval width is the story of the series.** Venezuela's bands are enormous relative to Mexico's — the model has learned that Venezuelan months are wild, so it takes a bigger shock to surprise it. This is the same "per-series threshold" logic from Part 1, but derived from the model instead of asserted.
+
+## Strengths, weaknesses, knobs
+
+- **Strengths:** probabilistically explicit ("1% of months, by design"); adapts width per series; calibration is checkable; one-step protocol makes it a genuine early-warning design, not hindsight.
+- **Weaknesses:** inherits the model's blind spots (a level shift blows the intervals *once*, then gets absorbed into the new fit — sustained ramps again go unseen); refitting every month costs compute; intervals assume Gaussian errors unless you bootstrap.
+- **Knobs:** interval level (the false-alarm budget, stated honestly), model order, window (expanding vs. rolling — rolling forgets old regimes faster, often better after breaks).
+
+**Real implementations:** statsmodels SARIMAX (used here), `statsforecast` (very fast AutoARIMA at scale), Prophet (same idea with a different model family and, notoriously, intervals that need the calibration check even more).

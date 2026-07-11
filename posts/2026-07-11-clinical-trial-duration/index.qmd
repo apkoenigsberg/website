@@ -1,0 +1,266 @@
+---
+title: "What Actually Predicts Clinical Trial Duration?"
+subtitle: "A first pass at registry data: the sponsor matters twice as much as the phase"
+author: "Aaron Koenigsberg"
+date: "2026-07-11"
+draft: true
+categories: [clinical-trials, healthcare, regression, python]
+image: "preview.png"
+execute:
+  echo: false
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+::: {.callout-note}
+## A note on how this was made
+
+Built by directing an AI research assistant: I set the research question, cohort rules, and interpretation; Claude wrote and ran the code, including the API pull. Data comes from the public [ClinicalTrials.gov API v2](https://clinicaltrials.gov/data-api/api) (no key required); the fetch script ships with this post.
+:::
+
+## The question
+
+Clinical trial planning runs on duration assumptions. Enrollment forecasts, budgets, and site strategies all start from "how long will this take?" — so before building anything fancier, it's worth asking what the public registry can tell us about the drivers of trial duration using nothing but information available **at trial launch**: phase, planned size, site footprint, and who's running it.
+
+This is the first post in a planned series working toward enrollment forecasting and site selection. The goal here is deliberately modest: establish the dataset, map the univariate patterns, fit a baseline regression, and be honest about what study-level registry data can and can't support.
+
+## Data
+
+The pull: 12,000 **completed, interventional Phase 2 and Phase 3** trials from ClinicalTrials.gov, flattened to one row per study — phase, actual enrollment, start and primary-completion dates, lead sponsor class, and site/country counts. Duration is start → primary completion, in months.
+
+```{python}
+#| label: setup
+#| code-fold: false
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+import statsmodels.formula.api as smf
+from IPython.display import Markdown, display
+
+plt.rcParams.update({
+    "figure.dpi": 150, "axes.spines.top": False, "axes.spines.right": False,
+    "font.size": 9, "axes.titlesize": 11, "axes.titleweight": "bold",
+    "figure.facecolor": "#fafafa", "axes.facecolor": "#fafafa",
+})
+
+df = pd.read_csv("trials.csv")
+df["start"] = pd.to_datetime(df["start_date"], format="mixed", errors="coerce")
+df["pcd"] = pd.to_datetime(df["primary_completion_date"], format="mixed", errors="coerce")
+df["duration_mo"] = (df["pcd"] - df["start"]).dt.days / 30.44
+```
+
+One filter matters more than all the others, so it gets its own paragraph. **Restricting to completed trials creates survivorship bias against recent cohorts**: a trial that started in 2023 can only appear in a completed-trials dataset if it finished fast. Left unhandled, this makes recent trials look artificially quick and contaminates every other coefficient. The fix here is blunt but effective: keep trials that **started 2000–2018**, so even slow trials (up to ~7 years) had time to complete before the data was pulled. The right long-term fix is survival analysis with ongoing trials included as censored observations — that's on the roadmap, not in this post.
+
+```{python}
+#| label: cohort
+#| code-fold: false
+
+d = df[
+    (df["duration_mo"] > 0) & (df["duration_mo"] < 240)
+    & (df["enrollment_type"] == "ACTUAL") & (df["enrollment"] > 0)
+    & (df["start"].dt.year >= 2000) & (df["start"].dt.year <= 2018)
+].copy()
+
+d["phase"] = d["phases"].map({
+    "PHASE2": "Phase 2", "PHASE3": "Phase 3",
+    "PHASE1|PHASE2": "Phase 1/2", "PHASE2|PHASE3": "Phase 2/3",
+})
+d["sponsor"] = np.select(
+    [d["sponsor_class"] == "INDUSTRY",
+     d["sponsor_class"].isin(["NIH", "FED", "NETWORK", "OTHER_GOV"])],
+    ["Industry", "Government / network"], default="Academic / other",
+)
+```
+
+```{python}
+#| label: tbl-cohort
+#| tbl-cap: "Analysis cohort."
+
+display(Markdown(f"""
+| | |
+|---|---|
+| **Trials in pull** | {len(df):,} |
+| **Analysis cohort** (started 2000–2018, actual enrollment, valid dates) | {len(d):,} |
+| **Median duration** | {d['duration_mo'].median():.1f} months |
+| **Median enrollment** | {d['enrollment'].median():.0f} participants |
+| **Share with a single listed site** | {(d['n_sites'] == 1).mean():.0%} |
+"""))
+```
+
+## What moves duration — and what doesn't
+
+```{python}
+#| label: fig-univariate
+#| fig-cap: "Duration distributions. Left: by phase — the differences are small. Right: by sponsor type — the differences are not."
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), constrained_layout=True)
+
+phase_order = ["Phase 1/2", "Phase 2", "Phase 2/3", "Phase 3"]
+data_p = [d.loc[d["phase"] == p, "duration_mo"] for p in phase_order]
+bp = axes[0].boxplot(data_p, tick_labels=phase_order, showfliers=False, patch_artist=True,
+                     medianprops=dict(color="black"))
+for patch in bp["boxes"]:
+    patch.set_facecolor("#aec7e8")
+axes[0].set_ylabel("Months, start → primary completion")
+axes[0].set_title("By phase")
+
+spon_order = ["Industry", "Academic / other", "Government / network"]
+data_s = [d.loc[d["sponsor"] == s, "duration_mo"] for s in spon_order]
+bp = axes[1].boxplot(data_s, tick_labels=spon_order, showfliers=False, patch_artist=True,
+                     medianprops=dict(color="black"))
+for patch, color in zip(bp["boxes"], ["#1f77b4", "#ff7f0e", "#d62728"]):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.6)
+axes[1].set_title("By sponsor type")
+
+fig.savefig("preview.png", bbox_inches="tight", dpi=100)
+plt.show()
+```
+
+```{python}
+#| label: tbl-medians
+#| tbl-cap: "Median duration (months) by phase and sponsor type."
+
+piv = d.pivot_table(index="phase", columns="sponsor", values="duration_mo", aggfunc="median").round(1)
+piv = piv.reindex(index=phase_order, columns=spon_order)
+display(Markdown(piv.to_markdown()))
+```
+
+Two things the table makes hard to ignore:
+
+**Phase is a weak predictor.** Phase 3 trials — larger, multi-country, more expensive — complete their primary endpoint *no slower* than Phase 2 trials in the same sponsor column. Whatever intuition says about big confirmatory trials grinding on for years, the median Phase 3 is comparable to the median Phase 2. Scale apparently buys operational muscle in proportion to its ambitions.
+
+**Sponsor type is a strong one.** Industry trials run roughly **half the duration** of government/network trials in every phase. Some of that is real operational difference (dedicated CROs, recruitment budgets, site payments), and some is that different sponsors run structurally different studies — endpoint choice, population rarity, follow-up length. Registry-level data can't fully separate those, and this post won't pretend it can.
+
+```{python}
+#| label: fig-confounding
+#| fig-cap: "Enrollment vs. duration, colored by sponsor. The raw relationship between size and duration is nearly flat — because bigger trials are disproportionately industry trials, which are faster."
+
+fig, ax = plt.subplots(figsize=(9, 5))
+for spon, color in [("Industry", "#1f77b4"), ("Academic / other", "#ff7f0e"),
+                    ("Government / network", "#d62728")]:
+    sub = d[d["sponsor"] == spon]
+    ax.scatter(sub["enrollment"], sub["duration_mo"], s=5, alpha=0.15, color=color, label=None)
+    med = (sub.assign(bin=pd.cut(np.log10(sub["enrollment"]), bins=12))
+           .groupby("bin", observed=True).agg(x=("enrollment", "median"), y=("duration_mo", "median")))
+    ax.plot(med["x"], med["y"], "o-", color=color, lw=2, ms=5, label=f"{spon} (binned median)")
+ax.set_xscale("log")
+ax.set_xlabel("Actual enrollment (log scale)")
+ax.set_ylabel("Duration (months)")
+ax.set_ylim(0, 120)
+ax.legend(frameon=False)
+ax.set_title("Size vs. speed, by sponsor")
+plt.show()
+```
+
+This chart is the reason the regression below exists. Pooled, enrollment looks unrelated to duration — trials with 500+ participants finish as fast as 50-participant trials. Split by sponsor, an upward slope reappears *within* each group. Classic confounding: **who** runs big trials masks what big trials cost in time. The regression will push this one step further — and find that even the within-sponsor slope isn't really about patient counts.
+
+## A baseline model
+
+OLS on log duration, with the launch-time features and start-year fixed effects. Nothing exotic — the point is to measure how much these features explain together, and to get the enrollment effect conditional on sponsor.
+
+```{python}
+#| label: model
+#| code-fold: false
+
+m = d[d["n_sites"] > 0].copy()
+m["log_dur"] = np.log(m["duration_mo"])
+m["log_enroll"] = np.log(m["enrollment"])
+m["log_sites"] = np.log(m["n_sites"])
+m["multi_country"] = (m["n_countries"] > 1).astype(int)
+m["start_year"] = m["start"].dt.year
+
+fit = smf.ols(
+    "log_dur ~ C(phase, Treatment('Phase 2')) + C(sponsor, Treatment('Industry'))"
+    " + log_enroll + log_sites + multi_country + C(start_year)",
+    data=m,
+).fit(cov_type="HC1")
+
+# Same model without the footprint variables, to see what enrollment does on its own
+fit_nosites = smf.ols(
+    "log_dur ~ C(phase, Treatment('Phase 2')) + C(sponsor, Treatment('Industry'))"
+    " + log_enroll + C(start_year)",
+    data=m,
+).fit(cov_type="HC1")
+```
+
+```{python}
+#| label: fig-coefs
+#| fig-cap: "Coefficients on log duration with 95% CIs (start-year fixed effects not shown). Exponentiate to read as multiplicative effects."
+
+keep = [c for c in fit.params.index if not c.startswith("C(start_year)") and c != "Intercept"]
+labels = {
+    "C(phase, Treatment('Phase 2'))[T.Phase 1/2]": "Phase 1/2 (vs Phase 2)",
+    "C(phase, Treatment('Phase 2'))[T.Phase 2/3]": "Phase 2/3 (vs Phase 2)",
+    "C(phase, Treatment('Phase 2'))[T.Phase 3]": "Phase 3 (vs Phase 2)",
+    "C(sponsor, Treatment('Industry'))[T.Academic / other]": "Academic (vs Industry)",
+    "C(sponsor, Treatment('Industry'))[T.Government / network]": "Gov/network (vs Industry)",
+    "log_enroll": "log(enrollment)",
+    "log_sites": "log(sites)",
+    "multi_country": "Multi-country",
+}
+coefs = fit.params[keep]
+ci = fit.conf_int().loc[keep]
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ypos = range(len(keep))
+ax.barh(ypos, coefs.values, xerr=(coefs - ci[0], ci[1] - coefs),
+        color=["#d62728" if v > 0 else "#1f77b4" for v in coefs.values],
+        alpha=0.75, height=0.6, error_kw=dict(lw=1.2))
+ax.set_yticks(ypos)
+ax.set_yticklabels([labels.get(k, k) for k in keep], fontsize=8)
+ax.axvline(0, color="black", lw=0.8)
+ax.set_xlabel("Effect on log(duration)")
+ax.set_title(f"Duration model coefficients   (R² = {fit.rsquared:.2f}, n = {int(fit.nobs):,})")
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: model-summary
+
+ind_gap = np.exp(fit.params["C(sponsor, Treatment('Industry'))[T.Government / network]"])
+enr_full = fit.params["log_enroll"]
+enr_ns   = fit_nosites.params["log_enroll"]
+sites    = fit.params["log_sites"]
+mc       = fit.params["multi_country"]
+display(Markdown(f"""
+Reading the fit:
+
+- **Sponsor dominates.** Holding phase, size, sites, and vintage fixed, a government/network-sponsored
+  trial runs about **{ind_gap:.1f}×** the duration of an industry trial. Academic sponsors sit in between.
+- **The time cost of scale lives in the footprint, not the head-count.** With only sponsor and phase
+  controlled, enrollment has a modest positive elasticity ({enr_ns:.2f} — doubling enrollment adds
+  ~{(2**enr_ns - 1) * 100:.0f}%). Add the footprint variables and it collapses to {enr_full:.2f},
+  while **sites** ({sites:.2f} per log-unit) and **multi-country operation** (+{(np.exp(mc) - 1) * 100:.0f}%)
+  pick up the effect. Conditional on how widely a trial is spread, more patients barely cost time;
+  spreading the trial wider does. For planning, that inverts the usual intuition: the enrollment
+  target matters less than the operational structure chosen to hit it.
+- **Phase remains a modest effect** — Phase 3 is only slightly longer than Phase 2, all else equal.
+- **R² = {fit.rsquared:.2f}.** Launch-time registry features explain a real but minor share of duration
+  variance. Most of what determines trial length — therapeutic area, endpoint follow-up length,
+  protocol complexity, site quality — isn't in these columns yet. That's the roadmap, not a failure:
+  a planning model needs to know how much the cheap features buy before paying for expensive ones.
+"""))
+```
+
+## Caveats
+
+- **Primary completion ≠ done.** Duration here ends at the primary endpoint's completion date; full study close-out takes longer.
+- **Registry hygiene varies.** Location lists are incomplete for older trials (site counts are floors, not truths), and `ACTUAL` enrollment is self-reported.
+- **Completed-only + 2000–2018 window** removes the worst survivorship bias but also drops terminated trials — the model predicts duration *conditional on finishing*, which is the optimistic version of the planning question.
+- **No therapeutic area yet.** Oncology and vaccines have famously different tempos; condition text needs mapping to areas before it can enter the model.
+
+## Where this series goes next
+
+1. **Add therapeutic area** (map conditions → MeSH-style categories) — the strongest known predictor left on the table.
+2. **Survival framing**: include ongoing and terminated trials as censored/competing observations instead of filtering to completed ones.
+3. **Enrollment-rate modeling** — participants per site per month, the quantity trial planners actually forecast — using the AACT flat files, which carry richer design fields than the v2 API pull.
+4. **Site selection**: which countries and site footprints historically hit planned enrollment, framed as a ranking problem.
+
+---
+
+*Data: [ClinicalTrials.gov API v2](https://clinicaltrials.gov/data-api/api), pulled July 2026 — 12,000 completed interventional Phase 2/3 studies; analysis cohort restricted to 2000–2018 starts. Fetch script: `fetch_aact_sample.py` alongside this post.*

@@ -1,0 +1,127 @@
+---
+title: "Anomaly Methods 5: The ML Family — and Why It Mostly Doesn't Fit Here"
+subtitle: "Isolation Forest and friends, tested honestly on 108 monthly observations"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+*Teaching note, not a blog post. Data: IMF IMTS monthly goods exports (levels), as in notes 1–4.*
+
+## The idea
+
+Everything in notes 1–4 was a *statistical* detector: assume structure (ARIMA dynamics, decomposition, segments), flag departures from it. The machine-learning family inverts this: assume nothing about time, engineer each observation into a feature vector, and ask geometric questions about the point cloud:
+
+- **Isolation Forest**: build random trees that split the feature space; anomalies are points that get isolated in *few* splits (they sit alone in sparse regions). Fast, robust, the industry default for tabular anomaly detection.
+- **Local Outlier Factor (LOF)**: compare each point's local density to its neighbors' density; anomalies are points substantially lonelier than their neighborhood.
+- **Matrix Profile** (honorable mention): for each subsequence of a series, the distance to its nearest matching subsequence anywhere else; "discords" — subsequences with no good match — are anomalies. The modern time-series-native ML method, brilliant at scale.
+- **Deep methods** (autoencoders, anomaly transformers): learn to reconstruct/forecast normal behavior with a neural net; flag high reconstruction error.
+
+Note what disappeared: the model of *time*. To make these methods see temporal structure at all, you must smuggle it back in through features — which is where this experiment gets instructive.
+
+## The honest experiment
+
+Feature-engineer each month (level z-score, month-over-month change, deviation from rolling mean, seasonal position), run Isolation Forest and LOF, and compare their flags to the plain old rolling z-score from the first trade post.
+
+```{python}
+#| label: setup
+
+import sys
+sys.path.insert(0, ".")
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+from _data import load_levels, setup_plots, mark_events, NAMES
+
+setup_plots()
+levels = load_levels()
+
+def featurize(y):
+    ly = np.log(y.dropna().asfreq("MS").interpolate())
+    f = pd.DataFrame(index=ly.index)
+    f["z"] = (ly - ly.mean()) / ly.std()
+    f["mom"] = ly.diff()
+    f["dev_roll"] = ly - ly.rolling(12, min_periods=6).mean()
+    f["sin_m"] = np.sin(2 * np.pi * f.index.month / 12)
+    f["cos_m"] = np.cos(2 * np.pi * f.index.month / 12)
+    return f.dropna(), ly
+
+def run_ml(y, contamination=0.05):
+    f, ly = featurize(y)
+    iso = IsolationForest(contamination=contamination, random_state=42).fit_predict(f)
+    lof = LocalOutlierFactor(n_neighbors=12, contamination=contamination).fit_predict(f)
+    flags = pd.DataFrame({"iso": iso == -1, "lof": lof == -1}, index=f.index)
+    # the classical comparator: rolling-deviation z-score
+    dev = f["dev_roll"]
+    flags["zrule"] = (dev - dev.mean()).abs() > 2 * dev.std()
+    return flags, ly
+```
+
+```{python}
+#| label: fig-ml
+#| fig-cap: "Isolation Forest (green), LOF (purple), and the classical rolling z-rule (red) at matched flag budgets (~5%). Marker rows above each series show each method's flagged months."
+
+COUNTRIES = ["UKR", "VEN", "MEX"]
+fig, axes = plt.subplots(len(COUNTRIES), 1, figsize=(10, 3.3 * len(COUNTRIES)),
+                         constrained_layout=True)
+from IPython.display import Markdown, display
+overlap_rows = []
+for ax, code in zip(axes, COUNTRIES):
+    flags, ly = run_ml(levels[code])
+    y = np.exp(ly)
+    ax.plot(y.index, y.values, color="steelblue", lw=1.3)
+    ax.set_yscale("log")
+    ymax = y.max()
+    for meth, color, lvl in [("zrule", "#e45756", 1.10), ("iso", "#54a24b", 1.22),
+                             ("lof", "#9467bd", 1.34)]:
+        for d in flags.index[flags[meth]]:
+            ax.plot([d], [ymax * lvl], marker="v", color=color, ms=5, clip_on=False)
+    ax.set_title(NAMES[code])
+    ax.set_ylabel("USD M (log)")
+    mark_events(ax, code)
+    both = (flags.iso & flags.zrule).sum()
+    overlap_rows.append({
+        "Country": NAMES[code],
+        "IsoForest flags": int(flags.iso.sum()),
+        "z-rule flags": int(flags.zrule.sum()),
+        "Overlap": int(both),
+        "Jaccard": round(both / max((flags.iso | flags.zrule).sum(), 1), 2),
+    })
+plt.show()
+display(Markdown(pd.DataFrame(overlap_rows).to_markdown(index=False)))
+```
+
+## Reading the output
+
+The overlap table is the punchline: at matched flag budgets, Isolation Forest substantially rediscovers the months the two-line z-score rule already found — because on 100 observations and five hand-made features, **the features are the detector**, and the features *are* the classical statistics. The forest adds a nonlinear wrapper around information we put there ourselves, plus some scatter from its randomness. LOF behaves similarly with different noise.
+
+That's not a knock on the methods; it's a statement about *regime*. These tools earn their reputation when at least one of these holds:
+
+- **Many observations** (thousands+), so density estimates mean something;
+- **Many features you didn't hand-craft** (dozens of sensors, high-frequency ticks), so geometry can find structure a human wouldn't encode;
+- **Many series at once** — e.g., all 227 countries × all partners as one giant table, hunting for *country-months* that are strange relative to the whole world's behavior. That reframing is genuinely promising for this dataset, and nothing in notes 1–4 can do it.
+
+At n=108 with univariate structure, the classical methods aren't just adequate — they're the same detector with better statistical guarantees and interpretable output. Matrix Profile hits the same wall here (108 points ÷ 12-month windows leaves too few subsequences to match against), and deep methods are out of the question by two orders of magnitude of data.
+
+## The one ML reframing worth pursuing on this data
+
+Take every country's month as a row (227 countries × 108 months ≈ 24k observations), featurize each relative to that country's own history, and run Isolation Forest across the *pool*. Now the question becomes "which country-months are anomalous *by world standards*" — a cross-sectional question the statistical methods don't naturally ask, on a sample size where the forest has room to work. If the ML family gets a post on this data, that's the honest angle for it.
+
+## Cheat sheet for the whole series
+
+| Question you're asking | Method | Note |
+|---|---|---|
+| Which single months are aberrant, and are they blips or breaks? | ARIMA intervention (Chen–Liu) | 1 |
+| Which points are outliers, with an honest error rate? | STL + Generalized ESD | 2 |
+| When did the regime change / did a slow collapse happen? | PELT / BOCPD (CUSUM's heirs) | 3 |
+| Is this month surprising, as an early-warning system? | Forecast prediction intervals | 4 |
+| Which entities are strange relative to a large population? | Isolation Forest & friends | 5 |

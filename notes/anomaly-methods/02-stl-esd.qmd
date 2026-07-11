@@ -1,0 +1,125 @@
+---
+title: "Anomaly Methods 2: STL + Generalized ESD"
+subtitle: "The industry-standard point detector, and why a real statistical test beats a 2σ rule"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+*Teaching note, not a blog post. Data: IMF IMTS monthly goods exports (levels), as in note 1.*
+
+## The idea
+
+This is the method behind Twitter's famous `AnomalyDetection` package ("Seasonal Hybrid ESD"), and it's the workhorse of industrial monitoring. Two components:
+
+**Step 1 — STL decomposition** strips the series into trend + seasonal + remainder using repeated loess smoothing. We met STL in the trade posts; the key property is that the remainder is (ideally) free of the two things that generate false alarms in raw data: calendar patterns and slow drift.
+
+**Step 2 — the Generalized ESD test** replaces "flag anything beyond 2σ" with an actual hypothesis test. This is the part worth understanding, because the 2σ rule has two statistical sins that ESD fixes:
+
+- **Multiple testing.** Checking 108 months at 2σ *guarantees* ~5 flags by chance. ESD controls the family-wise error: it asks "are there *any* outliers in this series?" with an α that accounts for how many points were checked.
+- **Masking.** One enormous outlier inflates the standard deviation, hiding smaller real ones. ESD works iteratively: test the most extreme point against critical values computed *without* assuming it's clean, remove it, re-estimate, and test the next — so each outlier stops contaminating the yardstick used to judge the rest. (The "hybrid" in S-H-ESD adds robustness by using median/MAD in the test statistic; we do the same.)
+
+The output isn't "these points exceed a threshold" — it's "**at significance level α, the series contains exactly $k$ outliers, and they are these**."
+
+## Implementation
+
+```{python}
+#| label: setup
+
+import sys
+sys.path.insert(0, ".")
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+from statsmodels.tsa.seasonal import STL
+from _data import load_levels, setup_plots, mark_events, NAMES
+
+setup_plots()
+levels = load_levels()
+
+def gesd(x, max_anoms, alpha=0.05, robust=True):
+    """Generalized ESD (Rosner 1983). Returns indices of confirmed outliers."""
+    x = pd.Series(x).dropna()
+    idx_out, n = [], len(x)
+    work = x.copy()
+    stats_list = []
+    for i in range(1, max_anoms + 1):
+        center = work.median() if robust else work.mean()
+        scale = 1.4826 * (work - work.median()).abs().median() if robust else work.std()
+        if not scale or np.isnan(scale):
+            break
+        dev = (work - center).abs() / scale
+        worst = dev.idxmax()
+        R_i = dev.max()
+        # critical value
+        p = 1 - alpha / (2 * (n - i + 1))
+        t = stats.t.ppf(p, n - i - 1)
+        lam_i = (n - i) * t / np.sqrt((n - i - 1 + t**2) * (n - i + 1))
+        stats_list.append((worst, R_i, lam_i))
+        work = work.drop(worst)
+    # number of outliers = largest i where R_i > lambda_i
+    k = 0
+    for i, (_, R_i, lam_i) in enumerate(stats_list, start=1):
+        if R_i > lam_i:
+            k = i
+    return [stats_list[i][0] for i in range(k)]
+
+def stl_esd(y, alpha=0.05, max_frac=0.10):
+    filled = y.dropna().asfreq("MS").interpolate()
+    res = STL(np.log(filled), period=12, robust=True).fit()
+    remainder = pd.Series(res.resid, index=filled.index)
+    return gesd(remainder, max_anoms=int(len(remainder) * max_frac), alpha=alpha), remainder
+```
+
+```{python}
+#| label: fig-esd
+#| fig-cap: "STL+ESD detections (red) vs. the naive 2σ rule on the same STL remainder (open gray circles show months only the 2σ rule flags). Red dashed lines mark known events."
+
+COUNTRIES = ["UKR", "VEN", "MEX"]
+fig, axes = plt.subplots(len(COUNTRIES), 2, figsize=(12.5, 3.1 * len(COUNTRIES)),
+                         constrained_layout=True)
+
+for row, code in zip(axes, COUNTRIES):
+    y = levels[code].dropna()
+    anoms, remainder = stl_esd(y)
+    two_sigma = remainder[(remainder - remainder.mean()).abs() > 2 * remainder.std()].index
+
+    ax = row[0]
+    ax.plot(y.index, y.values, color="steelblue", lw=1.3)
+    ax.set_yscale("log")
+    only2s = [d for d in two_sigma if d not in anoms]
+    ax.plot(only2s, y.reindex(only2s), "o", mfc="none", mec="gray", ms=6)
+    ax.plot(anoms, y.reindex(anoms), "o", color="#e45756", ms=6, mec="white")
+    ax.set_title(f"{NAMES[code]} — ESD confirms {len(anoms)}, 2σ flags {len(two_sigma)}")
+    ax.set_ylabel("USD M (log)")
+    mark_events(ax, code)
+
+    ax = row[1]
+    ax.bar(remainder.index, remainder.values, width=25,
+           color=["#e45756" if d in anoms else "#c9d7e8" for d in remainder.index])
+    ax.axhline(0, color="black", lw=0.6)
+    ax.set_title("STL remainder (log scale units)")
+plt.show()
+```
+
+## Reading the output
+
+The side-by-side is the lesson. On every country, the naive 2σ rule flags **more** months than ESD confirms — those open gray circles are exactly the "flags by construction" we kept warning about in the posts: with ~100 tests at 2σ, five hits are free. ESD, holding family-wise error at 5%, keeps only the months that survive an honest accounting of how many places we looked. When ESD and 2σ agree (the COVID cliff, the invasion months), you have a defensible claim; when only 2σ fires, you probably have noise.
+
+The Venezuela panel repeats the moral from note 1: point-wise tests on the remainder see the 2019 collapse only where the slope is steepest, because STL's *trend* absorbs the rest of the slide. A gradual disaster hides in the component that anomaly detection deliberately ignores. Note 3 fixes this.
+
+## Strengths, weaknesses, knobs
+
+- **Strengths:** statistically principled flag counts (the biggest practical upgrade over everything in our posts); robust to masking; cheap; no model-order choices beyond the STL period.
+- **Weaknesses:** point anomalies only — trend absorbs ramps and level shifts get smeared; assumes roughly normal remainders for the t-based critical values; needs a complete regular series (we interpolated small gaps).
+- **Knobs:** α (family-wise false-alarm budget — the honest version of "how many σ"), `max_anoms` cap, STL's `robust` flag and seasonal window.
+
+**Real implementations:** R `AnomalyDetection::AnomalyDetectionVec` (the original S-H-ESD), or compose it as here — statsmodels STL + a 30-line ESD. Ours *is* essentially the real thing.

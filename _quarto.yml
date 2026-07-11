@@ -4,6 +4,7 @@ project:
   render:
     - "*.qmd"
     - "posts/**/index.qmd"
+    - "!notes/"
 
 website:
   title: "Aaron Koenigsberg"
@@ -26,5 +27,11 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
     toc: true
     highlight-style: github
+
+execute:
+  echo: false
+
+jupyter: python3

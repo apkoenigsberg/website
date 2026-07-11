@@ -1,0 +1,501 @@
+---
+title: "Predicting Trade: The Upgrade That Wasn't (Part 2)"
+subtitle: "Seasonal decomposition was supposed to fix the moving average. It didn't — and finding out why was more useful than being right."
+author: "Aaron Koenigsberg"
+date: "2026-07-10"
+categories: [trade, forecasting, anomaly-detection, time-series, evaluation, python]
+image: "preview.png"
+execute:
+  echo: false
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+::: {.callout-note}
+## A note on how this was made
+
+Part of an ongoing series on IMF International Merchandise Trade Statistics (IMTS) data, built by directing an AI research assistant: I set the questions, the evaluation design, and the interpretation; Claude wrote and ran the code. The analysis is what emerged from that back-and-forth — including the parts where my hypothesis turned out to be wrong.
+:::
+
+## Where we left off
+
+[Part 1](../2026-04-25-imts-forecasting/index.qmd) built a deliberately bad one-step-ahead forecaster — a 12-month moving average of partner export shares — and used its residuals to flag anomalies. It ended with a promise: Part 2 would bring in **seasonal-trend decomposition (STL)** to fix the moving average's three failure modes (trend lag, calendar blindness, slow break absorption), and add a proper evaluation framework to measure whether any of this actually detects real-world events.
+
+This post keeps that promise, with a twist: **the seasonal upgrade loses to the naive baseline on every country**, and the evaluation framework — the less glamorous half of the promise — turns out to be the thing that matters. By the end we'll know *why* the obvious upgrade fails on this data, which "improvement" is just relabeling, and what genuinely works for the case every point-anomaly rule missed.
+
+## Setup
+
+Same data and universe as Part 1: monthly goods-export shares to each country's top 6 bilateral partners, for Ukraine, Venezuela, Yemen, Mexico, and Denmark, January 2017 through December 2025.
+
+```{python}
+#| label: setup
+#| code-fold: false
+
+import re
+import math
+import warnings
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+from pathlib import Path
+from IPython.display import Markdown, display
+from statsmodels.tsa.seasonal import STL
+
+warnings.filterwarnings("ignore")
+
+plt.rcParams.update({
+    "figure.dpi": 150, "axes.spines.top": False, "axes.spines.right": False,
+    "font.size": 9, "axes.titlesize": 11, "axes.titleweight": "bold",
+    "figure.facecolor": "#fafafa", "axes.facecolor": "#fafafa",
+})
+
+_DIR = Path(".")
+_CSV = Path(
+    "../2026-04-17-imts-exploratory/"
+    "dataset_2026-04-19T01_51_08.510445992Z_DEFAULT_INTEGRATION_IMF.STA_IMTS_1.0.0.csv"
+)
+
+TARGET    = ['UKR', 'VEN', 'YEM', 'MEX', 'DNK']
+INDICATOR = 'XG_FOB_USD'
+N_TOP     = 6
+Z         = 2.0
+OOS_START = 24   # months of history before the first out-of-sample forecast
+
+COUNTRY_NAMES = {
+    'UKR': 'Ukraine', 'VEN': 'Venezuela', 'YEM': 'Yemen',
+    'MEX': 'Mexico',  'DNK': 'Denmark',
+}
+```
+
+```{python}
+#| label: load-data
+
+all_cols     = pd.read_csv(_CSV, nrows=0).columns.tolist()
+monthly_cols = [c for c in all_cols if re.match(r'^\d{4}-M\d{2}$', c)]
+
+raw = pd.read_csv(_CSV, usecols=['SERIES_CODE'] + monthly_cols, dtype=str)
+parts = raw['SERIES_CODE'].str.split('.', n=3, expand=True)
+parts.columns = ['reporter', 'indicator', 'partner', 'freq']
+df = pd.concat([parts, raw[monthly_cols]], axis=1)
+df = df[
+    (df['freq'] == 'M') & (df['reporter'].isin(TARGET)) & (df['indicator'] == INDICATOR)
+].copy()
+df[monthly_cols] = df[monthly_cols].apply(pd.to_numeric, errors='coerce')
+
+long = df.melt(id_vars=['reporter', 'indicator', 'partner', 'freq'],
+               value_vars=monthly_cols, var_name='period', value_name='value')
+long['date'] = pd.to_datetime(long['period'].str.replace('-M', '-') + '-01')
+long = long.dropna(subset=['value'])
+long = long[long['value'] >= 0].copy()
+
+world = (long[long['partner'] == 'G001'][['reporter', 'date', 'value']]
+         .rename(columns={'value': 'world_total'}))
+bilateral = (long[long['partner'].str.match(r'^[A-Z]{3}$') == True]
+             .merge(world, on=['reporter', 'date'], how='left'))
+bilateral = bilateral[bilateral['world_total'] > 0].copy()
+bilateral['share'] = bilateral['value'] / bilateral['world_total']
+
+top_partners = {}
+for c in TARGET:
+    sub = bilateral[bilateral['reporter'] == c]
+    pa = (sub.groupby('partner')
+          .agg(avg_share=('share', 'mean'),
+               n_months=('share', lambda x: (x > 0).sum()))
+          .reset_index())
+    pa = pa[pa['n_months'] >= 12]
+    top_partners[c] = pa.nlargest(N_TOP, 'avg_share')['partner'].tolist()
+```
+
+## Four detectors
+
+We compare four ways of turning each share series into anomaly flags. All four share the same flagging rule — $|e_t| > 2\sigma$ on their residuals — so any difference comes from the model, not the threshold.
+
+1. **MA12** (the Part 1 baseline). Prediction = trailing 12-month mean, shifted one period. Honest one-step-ahead: it only ever sees the past.
+
+2. **Classic STL.** Decompose the *full* series into trend + seasonal + remainder with STL, treat the remainder as the residual. This is the textbook approach — and it is **not a forecast**. The loess trend at month $t$ is estimated using months *after* $t$, so the remainder knows the future. It gets flattered by hindsight, and we include it precisely to measure how much.
+
+3. **Out-of-sample STL (OOS-STL).** At each month $t$, fit STL only to data through $t-1$, then forecast $\hat{s}_t$ = last trend value + the seasonal component from the same calendar month a year earlier. An expanding-window, honest version of the decomposition idea.
+
+4. **MA12 + seasonal.** Deseasonalize with past-only STL, apply the trailing 12-month mean to the seasonally-adjusted series, re-add the seasonal. The hypothesis: keep the MA's low-variance level estimate, fix only its calendar blindness.
+
+```{python}
+#| label: detectors
+#| code-fold: false
+
+def flag_2sigma(resid, z=Z):
+    v = resid.dropna()
+    if len(v) < 10 or v.std() == 0 or math.isnan(v.std()):
+        return pd.Series(False, index=resid.index)
+    return resid.abs() > z * v.std()
+
+def ma12(share):
+    pred = share.rolling(12, min_periods=12).mean().shift(1)
+    return pred, share - pred
+
+def stl_classic(share):
+    filled = share.interpolate(limit_direction="both")
+    res = STL(filled, period=12, robust=True).fit()
+    resid = pd.Series(res.resid, index=share.index)
+    resid[share.isna()] = np.nan
+    return share - resid, resid
+
+def stl_oos(share):
+    filled = share.interpolate(limit_direction="both")
+    preds = pd.Series(np.nan, index=share.index)
+    for t in range(OOS_START, len(filled)):
+        res = STL(filled.iloc[:t], period=12, robust=True).fit()
+        preds.iloc[t] = res.trend.iloc[-1] + res.seasonal.iloc[t - 12]
+    return preds, share - preds
+
+def ma_seasonal(share):
+    filled = share.interpolate(limit_direction="both")
+    preds = pd.Series(np.nan, index=share.index)
+    for t in range(OOS_START, len(filled)):
+        res = STL(filled.iloc[:t], period=12, robust=True).fit()
+        seas_adj = filled.iloc[:t] - res.seasonal
+        preds.iloc[t] = seas_adj.iloc[-12:].mean() + res.seasonal.iloc[t - 12]
+    return preds, share - preds
+```
+
+```{python}
+#| label: run-detectors
+#| cache: true
+
+METHODS = [('ma', ma12), ('stl', stl_classic), ('oos', stl_oos), ('mas', ma_seasonal)]
+METHOD_LABELS = {'ma': 'MA12', 'stl': 'STL (classic)', 'oos': 'OOS-STL', 'mas': 'MA12+seasonal'}
+
+results = []
+for country in TARGET:
+    for partner in top_partners[country]:
+        sub = (bilateral[(bilateral['reporter'] == country) &
+                         (bilateral['partner'] == partner)][['date', 'share']]
+               .sort_values('date'))
+        idx = pd.date_range(sub['date'].min(), sub['date'].max(), freq='MS')
+        s = sub.set_index('date')['share'].reindex(idx)
+        if len(s) < OOS_START + 12 or s.isna().mean() > 0.3:
+            continue
+        row = {'country': country, 'partner': partner, 'share': s}
+        for meth, fn in METHODS:
+            pred, resid = fn(s)
+            v = resid.dropna()
+            row[f'{meth}_pred'], row[f'{meth}_resid'] = pred, resid
+            row[f'{meth}_flag'] = flag_2sigma(resid)
+            row[f'{meth}_mae']  = v.abs().mean() if len(v) else np.nan
+            row[f'{meth}_rmse'] = math.sqrt((v ** 2).mean()) if len(v) else np.nan
+        results.append(row)
+```
+
+## Round 1: forecast accuracy
+
+If the residuals are going to carry meaning, the forecasts need to be good. Here's one-step-ahead MAE by country, averaged across each country's partner series (classic STL is excluded — its "residuals" aren't forecast errors).
+
+```{python}
+#| label: tbl-accuracy
+#| tbl-cap: "One-step-ahead mean absolute error in percentage points of export share. Bold = best."
+
+rows = []
+for c in TARGET:
+    cs = [r for r in results if r['country'] == c]
+    vals = {m: np.nanmean([r[f'{m}_mae'] for r in cs]) * 100 for m in ['ma', 'oos', 'mas']}
+    best = min(vals, key=vals.get)
+    rows.append({
+        'Country': COUNTRY_NAMES[c],
+        'MA12 (pp)':          f"**{vals['ma']:.2f}**"  if best == 'ma'  else f"{vals['ma']:.2f}",
+        'OOS-STL (pp)':       f"**{vals['oos']:.2f}**" if best == 'oos' else f"{vals['oos']:.2f}",
+        'MA12+seasonal (pp)': f"**{vals['mas']:.2f}**" if best == 'mas' else f"{vals['mas']:.2f}",
+    })
+display(Markdown(pd.DataFrame(rows).to_markdown(index=False)))
+```
+
+The naive baseline wins everywhere — not by a little. OOS-STL is 25–60% worse; even the conservative MA12+seasonal hybrid loses on every country. Two seemingly obvious explanations fail quickly: it isn't the warm-up window (both seasonal methods get the same one), and it isn't robustness settings (robust STL is already being used).
+
+## Why: shares barely have seasons
+
+Part 1 asserted that "trade patterns often have seasonal cycles" and counted calendar blindness as an MA failure mode. That's true for trade **levels**. It is much less true for partner **shares** — seasonality hits the numerator and the denominator together, and mostly cancels in the ratio.
+
+We can quantify that with the seasonal-strength measure from Hyndman & Athanasopoulos: $F_s = \max\left(0,\ 1 - \frac{\mathrm{Var}(R_t)}{\mathrm{Var}(S_t + R_t)}\right)$, where $S$ and $R$ are the STL seasonal and remainder components. 0 means no seasonality; 1 means the seasonal component explains everything the trend doesn't.
+
+```{python}
+#| label: tbl-seasonal-strength
+#| tbl-cap: "Seasonal strength: total export levels vs. partner shares (median across each country's top-6 partner series)."
+
+def strength(s):
+    s = s.interpolate(limit_direction='both')
+    if s.isna().any() or len(s) < 36:
+        return np.nan
+    r = STL(s, period=12, robust=True).fit()
+    return max(0, 1 - r.resid.var() / (r.seasonal + r.resid).var())
+
+_dates_all = pd.to_datetime([c.replace('-M', '-') + '-01' for c in monthly_cols])
+srows = []
+for c in TARGET:
+    lvl = df[(df['reporter'] == c) & (df['partner'] == 'G001')][monthly_cols].sum()
+    lvl.index = _dates_all
+    share_strengths = []
+    for r in results:
+        if r['country'] == c:
+            st = strength(r['share'])
+            if st == st:
+                share_strengths.append(st)
+    srows.append({
+        'Country': COUNTRY_NAMES[c],
+        'Levels (total exports)': round(strength(lvl), 2),
+        'Shares (median, top-6 partners)': round(float(np.median(share_strengths)), 2),
+    })
+display(Markdown(pd.DataFrame(srows).to_markdown(index=False)))
+```
+
+Denmark's total exports are strongly seasonal (0.57); its partner shares are not (0.22). Yemen's shares have essentially zero seasonal structure. When the true seasonal signal is this weak, STL doesn't extract signal — it manufactures it from noise, and the estimation variance it adds exceeds the variance it removes. The moving average never had a seasonality problem on this data representation. **The lesson isn't "STL is bad"; it's that the upgrade was aimed at a failure mode this data doesn't have.**
+
+## Round 2: does anything detect real events?
+
+Part 1 promised an evaluation framework, and this is where it earns its keep. For events with well-known dates, we check whether flags land inside the event window, and compare against the false-alarm rate everywhere else:
+
+- **Ukraine**: Russian invasion — February–May 2022
+- **Venezuela**: oil sanctions escalation — January–June 2019
+- **Mexico & Denmark**: COVID shock — March–June 2020
+- **Yemen**: no dated event (its disruption is chronic, not acute) — false alarms only
+
+A 2σ rule flags ~4.6% of months by construction, so ~5% is the score a coin-flip detector gets. Hit rates need to clear that bar to mean anything.
+
+```{python}
+#| label: tbl-events
+#| tbl-cap: "Event-window hit rate (flagged months inside window / eligible months) vs. false-alarm rate outside windows."
+
+EVENTS = {
+    'UKR': [('2022-02-01', '2022-05-01')],
+    'VEN': [('2019-01-01', '2019-06-01')],
+    'MEX': [('2020-03-01', '2020-06-01')],
+    'DNK': [('2020-03-01', '2020-06-01')],
+    'YEM': [],
+}
+
+ev_rows = []
+for c in TARGET:
+    cs = [r for r in results if r['country'] == c]
+    for meth in ['ma', 'stl', 'oos', 'mas']:
+        n_in = n_win = n_out = n_mo = 0
+        for r in cs:
+            f = r[f'{meth}_flag']
+            valid = r[f'{meth}_resid'].notna()
+            iw = pd.Series(False, index=f.index)
+            for lo, hi in EVENTS[c]:
+                iw |= (f.index >= lo) & (f.index <= hi)
+            n_in += int((f & iw).sum());  n_win += int((valid & iw).sum())
+            n_out += int((f & ~iw).sum()); n_mo += int((valid & ~iw).sum())
+        ev_rows.append({
+            'Country': COUNTRY_NAMES[c],
+            'Method': METHOD_LABELS[meth],
+            'Hits': f"{n_in}/{n_win}" if n_win else '—',
+            'Hit %': f"{n_in/n_win*100:.0f}%" if n_win else '—',
+            'False-alarm %': f"{n_out/n_mo*100:.1f}%" if n_mo else '—',
+        })
+display(Markdown(pd.DataFrame(ev_rows).to_markdown(index=False)))
+```
+
+Three things stand out:
+
+**Ukraine is detectable; Venezuela mostly isn't.** Every method beats the base rate handily on Ukraine (41–59% hit rates against a ~5% floor) — a violent overnight restructuring produces exactly the large one-month residuals that point rules catch. Venezuela's 2019 collapse, which unfolded over months, stays near the base rate for every honest method. Same story as Part 1, now with numbers.
+
+**Classic STL's edge is borrowed from the future.** It posts the best Ukraine hit rate (59%) — and doubles Denmark's false-alarm rate to 8.2%. The control country shouldn't get *more* interesting under a better method. Hindsight decomposition sharpens real events and noise alike.
+
+**The honest seasonal methods buy nothing.** OOS-STL and MA12+seasonal sit at or below MA12's hit rates. Worse forecasts, no detection gain.
+
+```{python}
+#| label: fig-compare-ukr
+#| fig-cap: "Ukraine, top-6 partner export shares. Markers above each panel: flagged months by method (red = MA12, purple = classic STL, green = OOS-STL, orange = MA12+seasonal). The 2022 invasion cluster is visible in every method; classic STL also sprinkles extra flags across quiet periods."
+
+def plot_country_compare(country, save_preview=False):
+    cs = [r for r in results if r['country'] == country]
+    n = len(cs)
+    fig, axes = plt.subplots(math.ceil(n / 2), 2,
+                             figsize=(12, 3.4 * math.ceil(n / 2)), constrained_layout=True)
+    axes_flat = np.atleast_1d(axes).flatten()
+    fig.suptitle(f"{COUNTRY_NAMES[country]} — four detectors compared",
+                 fontsize=12, fontweight='bold')
+    for ax, r in zip(axes_flat, cs):
+        s = r['share'] * 100
+        ax.plot(s.index, s.values, color='#1f77b4', lw=1.3, label='Actual share')
+        ax.plot(r['oos_pred'].index, r['oos_pred'].values * 100, color='#2ca02c',
+                lw=0.9, ls='--', alpha=0.8, label='OOS-STL forecast')
+        ymax = np.nanmax(s.values)
+        for meth, color, lvl in [('ma', '#d62728', 1.06), ('stl', '#9467bd', 1.12),
+                                 ('oos', '#2ca02c', 1.18), ('mas', '#ff7f0e', 1.24)]:
+            fl = r[f'{meth}_flag']
+            for d in fl.index[fl]:
+                ax.plot([d], [ymax * lvl], marker='v', color=color, ms=4, clip_on=False)
+        ax.set_title(r['partner'], fontsize=9)
+        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1f%%'))
+        ax.tick_params(labelsize=7)
+        if ax is axes_flat[0]:
+            ax.legend(fontsize=7, loc='upper left')
+    for ax in axes_flat[n:]:
+        ax.set_visible(False)
+    if save_preview:
+        fig.savefig(_DIR / 'preview.png', bbox_inches='tight', dpi=100)
+    plt.show()
+
+plot_country_compare('UKR', save_preview=True)
+```
+
+```{python}
+#| label: fig-compare-dnk
+#| fig-cap: "Denmark — the control. Under an honest method the flags are sparse and scattered; classic STL (purple) finds spurious structure."
+
+plot_country_compare('DNK')
+```
+
+## Round 3: is a robust threshold the fix?
+
+Part 1 flagged a masking problem: σ is estimated from residuals *including* the anomalies, so disrupted series get inflated thresholds. The standard fix is a robust scale estimate — median absolute deviation (MAD) instead of the standard deviation. Swapping it in raises hit rates everywhere… and raises false alarms nearly as fast. That should make you suspicious that we've improved anything.
+
+The clean way to compare two threshold rules is at **matched false-alarm rates**: sweep the multiplier $z$ for both rules and trace hit rate against false-alarm rate.
+
+```{python}
+#| label: fig-roc
+#| fig-cap: "Hit rate vs. false-alarm rate as the threshold multiplier z sweeps 1.5–5.0, pooled across the four countries with dated events, MA12 residuals. The two rules trace nearly the same curve."
+
+def eval_rule(scale_fn, z):
+    n_in = n_win = n_out = n_mo = 0
+    for r in results:
+        c = r['country']
+        if not EVENTS.get(c):
+            continue
+        resid = r['ma_resid']; v = resid.dropna()
+        if len(v) < 10:
+            continue
+        center, sigma = scale_fn(v)
+        if not sigma or np.isnan(sigma):
+            continue
+        f = (resid - center).abs() > z * sigma
+        valid = resid.notna()
+        iw = pd.Series(False, index=f.index)
+        for lo, hi in EVENTS[c]:
+            iw |= (f.index >= lo) & (f.index <= hi)
+        n_in += int((f & iw).sum());  n_win += int((valid & iw).sum())
+        n_out += int((f & ~iw).sum()); n_mo += int((valid & ~iw).sum())
+    return n_in / n_win * 100, n_out / n_mo * 100
+
+sd_rule  = lambda v: (v.mean(), v.std())
+mad_rule = lambda v: (v.median(), 1.4826 * (v - v.median()).abs().median())
+
+zs = np.arange(1.5, 5.01, 0.25)
+sd_pts  = [eval_rule(sd_rule, z)  for z in zs]
+mad_pts = [eval_rule(mad_rule, z) for z in zs]
+
+fig, ax = plt.subplots(figsize=(7.5, 5.5))
+ax.plot([f for _, f in sd_pts],  [h for h, _ in sd_pts],  'o-',  color='#1f77b4', ms=4, label='sd rule')
+ax.plot([f for _, f in mad_pts], [h for h, _ in mad_pts], 's--', color='#d62728', ms=4, label='MAD rule')
+for z, (h, f) in zip(zs, sd_pts):
+    if z in (2.0, 3.0):
+        ax.annotate(f"z={z:.0f}", (f, h), fontsize=7, xytext=(5, -2), textcoords='offset points', color='#1f77b4')
+for z, (h, f) in zip(zs, mad_pts):
+    if z in (2.0, 3.0):
+        ax.annotate(f"z={z:.0f}", (f, h), fontsize=7, xytext=(5, -2), textcoords='offset points', color='#d62728')
+ax.set_xlabel('False-alarm rate (%)')
+ax.set_ylabel('Event-window hit rate (%)')
+ax.set_title('sd vs. MAD thresholds at matched operating points')
+ax.legend(frameon=False)
+plt.tight_layout()
+plt.show()
+```
+
+At any given false-alarm budget, the two rules deliver roughly the same hit rate. **Switching to MAD at the same $z$ isn't a better detector — it's a lower threshold wearing a robustness costume.** If you want more hits, you could have just lowered $z$. (MAD retains a real advantage the pooled curve understates: in *heavily* contaminated individual series it keeps single catastrophic months from swallowing the threshold. But as a headline fix, it's relabeling.)
+
+## Round 4: the right tool for slow collapses
+
+The Venezuela problem — sanctions bite, exports bleed away over 18 months, no single month looks extreme — is not a point-anomaly problem. It's a *sustained shift* problem, and the classical tool for it is **CUSUM** (cumulative sum control charting): accumulate standardized residuals, subtracting a slack $k$ each month, and alarm when the cumulative drift exceeds a decision interval $h$. Small persistent errors that a 2σ rule ignores add up until CUSUM fires.
+
+We run a standard two-sided CUSUM ($k = 0.5\sigma$, $h = 4\sigma$, robust σ, reset after each alarm) on the same MA12 residuals:
+
+```{python}
+#| label: cusum
+#| code-fold: false
+
+def cusum_detect(resid, k=0.5, h=4.0):
+    """Two-sided standardized CUSUM with reset-on-alarm. Returns alarm dates + statistics."""
+    v = resid.dropna()
+    if len(v) < 10:
+        return [], None, None
+    sigma = 1.4826 * (v - v.median()).abs().median()
+    if not sigma or np.isnan(sigma):
+        return [], None, None
+    z = (resid - v.median()) / sigma
+    cp = pd.Series(0.0, index=resid.index)
+    cm = pd.Series(0.0, index=resid.index)
+    alarms, up, dn = [], 0.0, 0.0
+    for i, (dt, zi) in enumerate(z.items()):
+        if not np.isnan(zi):
+            up = max(0.0, up + zi - k)
+            dn = min(0.0, dn + zi + k)
+            if up > h or dn < -h:
+                alarms.append(dt)
+                up = dn = 0.0
+        cp.iloc[i], cm.iloc[i] = up, dn
+    return alarms, cp, cm
+```
+
+```{python}
+#| label: fig-cusum
+#| fig-cap: "CUSUM on MA12 residuals for the two headline series. Top: export share. Bottom: CUSUM statistics with the ±4σ decision interval; red lines mark alarms."
+
+SHOWCASE = [('UKR', 'RUS'), ('VEN', 'USA')]
+fig, axes = plt.subplots(2, 2, figsize=(13, 7.5), constrained_layout=True)
+
+for col, (c, p) in enumerate(SHOWCASE):
+    r = next(r for r in results if r['country'] == c and r['partner'] == p)
+    alarms, cp, cm = cusum_detect(r['ma_resid'])
+    s = r['share'] * 100
+
+    ax = axes[0][col]
+    ax.plot(s.index, s.values, color='#1f77b4', lw=1.4)
+    for a in alarms:
+        ax.axvline(a, color='#d62728', lw=1.2, alpha=0.8)
+    ax.set_title(f"{COUNTRY_NAMES[c]} → {p}: export share")
+    ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.0f%%'))
+
+    ax = axes[1][col]
+    ax.plot(cp.index, cp.values, color='#2ca02c', lw=1.2, label='CUSUM+')
+    ax.plot(cm.index, cm.values, color='#9467bd', lw=1.2, label='CUSUM−')
+    ax.axhline(4, color='gray', ls='--', lw=1.0)
+    ax.axhline(-4, color='gray', ls='--', lw=1.0)
+    for a in alarms:
+        ax.axvline(a, color='#d62728', lw=1.2, alpha=0.8)
+    ax.set_title(f"CUSUM statistic (alarms: {', '.join(d.strftime('%Y-%m') for d in alarms[:4])}{'…' if len(alarms) > 4 else ''})")
+    ax.legend(fontsize=8, frameon=False)
+
+plt.show()
+```
+
+The results on the headline cases are what the point rules couldn't deliver:
+
+- **Ukraine → Russia alarms in March 2022**, one month after the invasion. It also alarms in mid-2020 and mid-2021 — not noise, but the tail of the long post-2014 decoupling grinding Russia's share lower, which is exactly the kind of sustained drift CUSUM is built to accumulate.
+- **Venezuela → USA alarms in March 2019**, two months into the sanctions window that every 2σ rule scored near the base rate. Venezuela → India and → China alarm within the following two months, which is the rerouting story: barrels that stopped flowing to Houston went to Jamnagar instead.
+
+The honest caveat: at these settings, an in-control Gaussian series should alarm roughly once every 14 years; our Denmark series alarm every 2–3 years. Trade-share residuals have heavier tails than the theory assumes (and the MA's trend-lag feeds slow drifts into the accumulator), so the decision interval needs empirical calibration — the false-alarm arithmetic from Round 2 applies here too. CUSUM isn't magic; it's the right *shape* of detector for the right shape of disruption.
+
+## Scoreboard
+
+| Approach | One-step accuracy | Event detection | Verdict |
+|---|---|---|---|
+| MA12 (naive baseline) | **Best** | Good on abrupt events | Still the champion, annoyingly |
+| Classic STL | not a forecast | Best-looking, borrowed from the future | Use for description, never for detection claims |
+| OOS-STL / MA12+seasonal | 25–60% worse | No gain | Fixed a failure mode the data doesn't have |
+| MAD threshold | n/a | Same ROC curve as sd | Relabeled threshold, not a better detector |
+| CUSUM on MA12 residuals | n/a | Catches slow collapses point rules miss | The real upgrade — calibrate before trusting |
+
+The methodological throughline: **every "improvement" was evaluated against the boring baseline on out-of-sample accuracy and dated real-world events, and most of them failed.** That's not a disappointing result. The alternative — publishing the classic-STL flags because they looked sharpest — would have been a nicer-looking post describing a worse system, and nobody would have known until it was load-bearing.
+
+## What's next
+
+Three directions, in order of expected value:
+
+1. **Model levels, not just shares.** The seasonal signal that shares cancel out is alive in levels (strength 0.4–0.6). A level model with real seasonality, cross-checked against share-based flags, would separate "trade fell" from "trade reshuffled."
+2. **Calibrate CUSUM empirically.** Set $h$ per series from a false-alarm budget (via block bootstrap on pre-event residuals) rather than Gaussian theory, then re-score the event windows.
+3. **Formal changepoint methods** — PELT for retrospective segmentation, BOCPD for online detection — as the principled version of what CUSUM approximates, with the same honest evaluation harness ready to score them.
+
+---
+
+*Data: [IMF International Merchandise Trade Statistics](https://data.imf.org/IMTS), bulk flat file download. Events: Russian invasion of Ukraine (2022-02-24), US oil sanctions on Venezuela (2019-01-28), WHO COVID-19 pandemic declaration (2020-03-11).*

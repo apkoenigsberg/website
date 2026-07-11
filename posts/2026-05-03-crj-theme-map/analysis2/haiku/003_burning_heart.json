@@ -1,0 +1,14 @@
+{
+  "title": "Burning Heart",
+  "album": "CRJ7*",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    }
+  ]
+}

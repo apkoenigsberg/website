@@ -1,0 +1,18 @@
+{
+  "title": "Tonight I'm Getting Over You (KoKo Club Mix)",
+  "album": "Kiss: The Remix",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "empowerment",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "escapism",
+      "sentiment": "positive"
+    }
+  ]
+}

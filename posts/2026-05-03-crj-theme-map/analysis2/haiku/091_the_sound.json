@@ -1,0 +1,18 @@
+{
+  "title": "The Sound",
+  "album": "Dedicated (Japanese Edition)",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    }
+  ]
+}

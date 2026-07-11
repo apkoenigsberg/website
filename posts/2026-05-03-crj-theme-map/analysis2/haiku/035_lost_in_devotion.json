@@ -1,0 +1,18 @@
+{
+  "title": "Lost in Devotion",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Tug of War (Dave \"Rave\" Ogilvie Remix)",
+  "album": "Tug of War (Japan CD)",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

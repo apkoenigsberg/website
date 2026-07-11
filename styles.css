@@ -1,0 +1,5 @@
+/* Keep figures inside the viewport on small screens */
+img {
+  max-width: 100%;
+  height: auto;
+}

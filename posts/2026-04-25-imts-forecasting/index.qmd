@@ -3,14 +3,10 @@ title: "Predicting Trade: Anomaly Detection via One-Step-Ahead Forecasting (Part
 subtitle: "Starting with the simplest possible baseline: a 12-month moving average"
 author: "Aaron Koenigsberg"
 date: "2026-04-25"
-categories: [trade, forecasting, anomaly-detection, time-series]
+categories: [trade, forecasting, anomaly-detection, time-series, python]
 image: "preview.png"
-format:
-  html:
-    code-fold: true
-    code-summary: "Show code"
 execute:
-  echo: true
+  echo: false
   warning: false
   freeze: auto
 ---
@@ -147,6 +143,8 @@ df[monthly_cols] = df[monthly_cols].apply(pd.to_numeric, errors='coerce')
 
 After loading, we melt the wide-format monthly columns into a long format and compute each partner's **share of total exports**. The world aggregate (partner code `G001`) is our denominator. We keep only bilateral partners with real ISO3 country codes — filtering out the IMF's group codes like `G998` (not allocated) and `GX`-prefixed regional aggregates.
 
+One consequence of working in shares: they're compositional. Partner shares within a country sum toward 100%, so a genuine shock to one partner mechanically moves every other partner's share in the opposite direction. Anomaly flags across partners of the same country are therefore not independent — a cluster of same-month flags can be one event, not several.
+
 ```{python}
 #| label: melt-and-shares
 
@@ -279,7 +277,6 @@ for ax, country in zip(axes, TARGET):
     ax.legend(loc='upper right', fontsize=7, ncol=2, framealpha=0.7)
     ax.tick_params(labelsize=8)
 
-plt.savefig(_DIR / 'fig_stacked_shares.png', bbox_inches='tight', dpi=150)
 plt.show()
 ```
 
@@ -293,7 +290,7 @@ $$\hat{s}_t = \frac{1}{12} \sum_{k=1}^{12} s_{t-k}$$
 
 The residual is just actual minus predicted: $e_t = s_t - \hat{s}_t$.
 
-We need 12 months of history before making any prediction, so the first valid residual is at month 13 of each series. The `min_periods=12` argument enforces this — we don't allow partial windows.
+We need a full 12 months of history before making any prediction — no partial windows — so the first valid residual is at month 13 of each series.
 
 Why is this a bad model? A few reasons:
 
@@ -379,10 +376,6 @@ for country in TARGET:
         'Country':       COUNTRY_NAMES[country],
         'Avg MAE (pp)':  f"{_safe_mean(maes)  * 100:.2f}" if maes  else '—',
         'Avg RMSE (pp)': f"{_safe_mean(rmses) * 100:.2f}" if rmses else '—',
-        'Fit quality':   '★★★★★' if _safe_mean(rmses)*100 < 1 else
-                         '★★★★☆' if _safe_mean(rmses)*100 < 2 else
-                         '★★★☆☆' if _safe_mean(rmses)*100 < 5 else
-                         '★★☆☆☆' if _safe_mean(rmses)*100 < 10 else '★☆☆☆☆'
     })
 
 display(Markdown(pd.DataFrame(metrics_rows).to_markdown(index=False)))
@@ -397,6 +390,8 @@ Mexico and Denmark are nearly predictable by this simple model — partner share
 With residuals in hand, we flag months where the **absolute residual exceeds 2 standard deviations** of the residual distribution for that series. The threshold is computed per series — so a 5pp residual in Yemen (high-noise baseline) means something very different from a 5pp residual in Denmark (low-noise baseline).
 
 Formally: for each country-partner series, we compute $\sigma$ = sample standard deviation of $\{e_t\}$, then flag month $t$ if $|e_t| > 2\sigma$.
+
+Two caveats worth stating up front. First, the base rate: a two-sided 2σ rule flags roughly 4.6% of months *by construction* if residuals are approximately normal — so a series with 96 usable months will produce four or five flags even if nothing interesting ever happened. Any claim that the flags mean something has to clear that bar. Second, σ is estimated from all residuals *including* the anomalous ones. In heavily disrupted countries the outliers inflate σ, which then masks smaller genuine events — a classic masking problem. A robust scale estimate (like MAD) would mitigate this; we'll return to it in Part 2.
 
 ```{python}
 #| label: anomaly-flag
@@ -488,7 +483,7 @@ def plot_anomaly_country(country, save_path=None):
         plt.savefig(save_path, bbox_inches='tight', dpi=150)
     plt.show()
 
-plot_anomaly_country('UKR', save_path=_DIR / 'fig_anomaly_ukr.png')
+plot_anomaly_country('UKR', save_path=_DIR / 'preview.png')
 ```
 
 ### Venezuela
@@ -499,7 +494,7 @@ Venezuela's story plays out differently — the disruption is slower, more econo
 #| label: fig-anomaly-venezuela
 #| fig-cap: "Venezuela export shares: actual vs. 12-mo MA prediction. Venezuela's economic collapse and US sanctions are slower-moving than Ukraine's war, but still overwhelm the moving average."
 
-plot_anomaly_country('VEN', save_path=_DIR / 'fig_anomaly_ven.png')
+plot_anomaly_country('VEN')
 ```
 
 ### Yemen
@@ -510,7 +505,7 @@ Yemen is the hardest case — sparse data, small volumes, and a civil war that h
 #| label: fig-anomaly-yemen
 #| fig-cap: "Yemen export shares: the high RMSE (>10pp) and sparse data make anomaly flagging noisy here. Many flags are likely data quality artefacts rather than structural breaks."
 
-plot_anomaly_country('YEM', save_path=_DIR / 'fig_anomaly_yem.png')
+plot_anomaly_country('YEM')
 ```
 
 ### Mexico
@@ -521,7 +516,7 @@ Mexico shows what a clean, predictable series looks like. The US relationship is
 #| label: fig-anomaly-mexico
 #| fig-cap: "Mexico export shares: the US dominance (often >70% of total exports) is remarkably stable. The few flagged anomalies mostly correspond to COVID-era disruptions and the 2022–2023 near-shoring shift."
 
-plot_anomaly_country('MEX', save_path=_DIR / 'fig_anomaly_mex.png')
+plot_anomaly_country('MEX')
 ```
 
 ### Denmark
@@ -532,11 +527,7 @@ Denmark is our control — a small, stable, high-income exporter with diversifie
 #| label: fig-anomaly-denmark
 #| fig-cap: "Denmark export shares: stable and well-predicted by the moving average. This is what a 'normal' country looks like — a useful baseline for comparison."
 
-plot_anomaly_country('DNK', save_path=_DIR / 'fig_anomaly_dnk.png')
-
-# Save preview
-import shutil
-shutil.copy(_DIR / 'fig_anomaly_ukr.png', _DIR / 'preview.png')
+plot_anomaly_country('DNK')
 ```
 
 ---
@@ -565,4 +556,4 @@ We'll also add a proper evaluation framework: for countries with known event dat
 
 ---
 
-*Data: [IMF International Merchandise Trade Statistics](https://data.imf.org/IMTS), bulk flat file download. All code in this post runs without `scipy` or `pycountry` — only `pandas`, `numpy`, `matplotlib`, and Python's standard `math` module.*
+*Data: [IMF International Merchandise Trade Statistics](https://data.imf.org/IMTS), bulk flat file download. Part 1 needs only `pandas`, `numpy`, and `matplotlib`; Part 2 brings in `statsmodels`.*

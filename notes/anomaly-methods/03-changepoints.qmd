@@ -1,0 +1,158 @@
+---
+title: "Anomaly Methods 3: Changepoint Detection (PELT & BOCPD)"
+subtitle: "Stop asking 'which month is weird' and start asking 'when did the regime change'"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  freeze: auto
+jupyter: python3
+---
+
+*Teaching note, not a blog post. Data: IMF IMTS monthly goods exports (levels), as in notes 1–2.*
+
+## The idea
+
+Venezuela has been the recurring embarrassment of this series: an 18-month collapse that no point-wise detector sees cleanly, because no single month is extreme. Changepoint methods dissolve the problem by changing the question. Instead of scoring months, they **partition the series into segments** and ask where the statistical regime — the mean, the variance, the trend — changed.
+
+Two philosophies, both worth knowing:
+
+**PELT (Pruned Exact Linear Time)** is the retrospective workhorse. Frame segmentation as an optimization: every candidate set of breakpoints has a cost (how badly a simple model fits within each segment) plus a **penalty per breakpoint**. Minimize total cost. With no penalty, every point becomes a breakpoint (perfect fit, useless); with an infinite penalty, you get zero breaks. The penalty is the method's honesty dial, and PELT finds the *exact* optimum in linear time — which is why it's the default in every serious library.
+
+**BOCPD (Bayesian Online Changepoint Detection)** is the streaming philosophy. At each new observation, maintain a probability distribution over the **run length** — "how long since the last change?" If the new point is plausible under the current regime, run length grows by one; if it's surprising, probability mass jumps to run-length zero. You get, in real time, a probability that the world just changed — which is what an early-warning system actually wants (CUSUM, from the Part 2 post, is the frequentist ancestor of this idea).
+
+## PELT on the trade data
+
+```{python}
+#| label: setup
+
+import sys
+sys.path.insert(0, ".")
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import ruptures as rpt
+from _data import load_levels, setup_plots, mark_events, NAMES
+
+setup_plots()
+levels = load_levels()
+
+def pelt_breaks(y, pen):
+    """PELT with an L2 cost on log-levels: detects mean shifts."""
+    ly = np.log(y.dropna().asfreq('MS').interpolate())
+    algo = rpt.Pelt(model="l2", min_size=6).fit(ly.values.reshape(-1, 1))
+    bkps = algo.predict(pen=pen)[:-1]          # last element is just len(y)
+    return [ly.index[b] for b in bkps], ly
+```
+
+```{python}
+#| label: fig-pelt
+#| fig-cap: "PELT segmentation of log export levels (penalty = 1.0). Shaded bands are segments; the segment mean is drawn through each. Red dashed lines mark known events."
+
+COUNTRIES = ["UKR", "VEN", "MEX"]
+fig, axes = plt.subplots(len(COUNTRIES), 1, figsize=(10, 3.2 * len(COUNTRIES)),
+                         constrained_layout=True)
+PEN = 1.0
+
+for ax, code in zip(axes, COUNTRIES):
+    breaks, ly = pelt_breaks(levels[code], pen=PEN)
+    y = np.exp(ly)
+    ax.plot(y.index, y.values, color="steelblue", lw=1.2, alpha=0.8)
+    ax.set_yscale("log")
+    edges = [ly.index[0]] + breaks + [ly.index[-1]]
+    for i in range(len(edges) - 1):
+        seg = ly.loc[edges[i]:edges[i + 1]]
+        ax.hlines(np.exp(seg.mean()), edges[i], edges[i + 1],
+                  color="#e45756", lw=2.2)
+        if i % 2:
+            ax.axvspan(edges[i], edges[i + 1], color="gray", alpha=0.07)
+    ax.set_title(f"{NAMES[code]} — breaks at: "
+                 + (", ".join(f"{b:%Y-%m}" for b in breaks) or "none"))
+    ax.set_ylabel("USD M (log)")
+    mark_events(ax, code)
+plt.show()
+```
+
+**This is the chart that finally does Venezuela justice.** Where point detectors saw scattered weak flags, PELT draws the story directly: a staircase of regime levels stepping down through 2019. Ukraine typically gets a clean break at the invasion, Mexico a break-and-recovery around COVID. The red segment means *are* the interpretation — "average monthly exports were X, then from date D they were Y."
+
+## The penalty is the analysis
+
+The honest question is always "why that penalty?" — so sweep it:
+
+```{python}
+#| label: fig-penalty
+#| fig-cap: "Number of detected breakpoints vs. penalty. Plateaus are stable segmentations; steep regions mean the answer depends sensitively on the knob."
+
+fig, ax = plt.subplots(figsize=(8, 4))
+pens = np.linspace(0.05, 4, 60)
+for code, color in [("UKR", "#4c78a8"), ("VEN", "#e45756"), ("MEX", "#54a24b")]:
+    n_bkps = [len(pelt_breaks(levels[code], pen=p)[0]) for p in pens]
+    ax.step(pens, n_bkps, where="post", color=color, lw=1.6, label=NAMES[code])
+ax.axvline(1.0, color="gray", ls=":", lw=1)
+ax.set_xlabel("Penalty per breakpoint")
+ax.set_ylabel("Breakpoints found")
+ax.legend(frameon=False)
+ax.set_title("Penalty sweep — look for plateaus, not points")
+plt.show()
+```
+
+The professional habit: report the plateau, not a single run. A segmentation that survives a 2× change in penalty is a finding; one that appears only at a knife-edge penalty is a wish. (Principled defaults exist — BIC-style penalties scale with log n and the noise variance — but the sweep is the more convincing exhibit.)
+
+## BOCPD in one picture
+
+A minimal Gaussian BOCPD (unknown mean, conjugate updates, hazard 1/60 — i.e., a prior that regimes last five years on average):
+
+```{python}
+#| label: fig-bocpd
+#| fig-cap: "Ukraine: run-length posterior (dark = probable). The diagonal stripes are 'the regime continues'; a collapse back to the bottom row is the model saying 'the world just changed.'"
+
+def bocpd_gaussian(x, hazard=1/60, mu0=0.0, kappa0=1.0, alpha0=1.0, beta0=1.0):
+    """Minimal BOCPD (Adams & MacKay 2007) with a Normal-Inverse-Gamma prior."""
+    T = len(x)
+    R = np.zeros((T + 1, T + 1)); R[0, 0] = 1.0
+    mu, kappa, alpha, beta = [np.array([v], float) for v in (mu0, kappa0, alpha0, beta0)]
+    from scipy import stats as st
+    for t, xt in enumerate(x):
+        scale = np.sqrt(beta * (kappa + 1) / (alpha * kappa))
+        pred = st.t.pdf(xt, 2 * alpha, loc=mu, scale=scale)
+        growth = R[t, :t + 1] * pred * (1 - hazard)
+        cp = (R[t, :t + 1] * pred * hazard).sum()
+        R[t + 1, 1:t + 2] = growth
+        R[t + 1, 0] = cp
+        R[t + 1] /= R[t + 1].sum() + 1e-300
+        mu_new = np.r_[mu0, (kappa * mu + xt) / (kappa + 1)]
+        kappa_new = np.r_[kappa0, kappa + 1]
+        alpha_new = np.r_[alpha0, alpha + 0.5]
+        beta_new = np.r_[beta0, beta + kappa * (xt - mu) ** 2 / (2 * (kappa + 1))]
+        mu, kappa, alpha, beta = mu_new, kappa_new, alpha_new, beta_new
+    return R
+
+ly = np.log(levels["UKR"].dropna().asfreq("MS").interpolate())
+z = ((ly - ly.mean()) / ly.std()).values
+R = bocpd_gaussian(z)
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=False, constrained_layout=True)
+axes[0].plot(ly.index, np.exp(ly.values), color="steelblue", lw=1.3)
+axes[0].set_yscale("log"); axes[0].set_title("Ukraine exports"); axes[0].set_ylabel("USD M")
+mark_events(axes[0], "UKR")
+T = len(z)
+axes[1].imshow(np.log(R[1:T + 1, :90].T + 1e-12), aspect="auto", origin="lower",
+               cmap="Greys", extent=[0, T, 0, 90])
+axes[1].set_xlabel("Months since Jan 2017"); axes[1].set_ylabel("Run length (months)")
+axes[1].set_title("BOCPD run-length posterior")
+plt.show()
+```
+
+Read the bottom panel like a seismograph: each long diagonal is a stable regime accumulating history; each collapse to zero is a detected change. The value of the Bayesian framing is that "collapse" isn't binary — you get a posterior probability of change at every month, online, which plugs directly into an alerting rule with an explicit false-alarm budget.
+
+## Strengths, weaknesses, knobs
+
+- **Strengths:** the right *shape* of tool for regime changes and slow collapses; PELT is exact and fast; BOCPD gives calibrated online probabilities; segment means are self-explanatory to non-statisticians.
+- **Weaknesses:** not for point anomalies (a single spike becomes a silly two-break segment — pair with note 2's methods); seasonality must be removed first or fed into the cost model; the penalty/hazard is a genuine judgment call.
+- **Knobs:** PELT penalty (sweep it), cost model (`l2` mean-shift, `rbf` general distribution change, linear-trend costs for slope changes), `min_size`; BOCPD hazard and prior.
+
+**Real implementations:** Python `ruptures` (used here), R `changepoint`; BOCPD variants in `bayesian_changepoint_detection` or hand-rolled as above — the algorithm fits in 25 lines.

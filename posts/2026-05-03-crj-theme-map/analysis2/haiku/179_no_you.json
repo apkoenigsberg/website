@@ -1,0 +1,18 @@
+{
+  "title": "No You",
+  "album": "Disco Sweat",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "empowerment",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    }
+  ]
+}

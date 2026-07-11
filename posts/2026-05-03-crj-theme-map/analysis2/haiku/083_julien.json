@@ -1,0 +1,18 @@
+{
+  "title": "Julien",
+  "album": "Dedicated (Japanese Edition)",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "negative"
+    }
+  ]
+}

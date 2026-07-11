@@ -1,29 +1,31 @@
 ---
 title: "Carly Rae Jepsen's Lyrical Themes, Mapped"
 date: "2026-05-03"
+date-modified: "2026-07-11"
 categories: [music, nlp, python, claude-api]
-description: "A theme analysis of 183 CRJ songs across her full discography using Claude API and a controlled vocabulary."
+description: "Two Claude models independently tag 183 CRJ songs against a 13-theme controlled vocabulary; the charts use only what they agree on."
 format:
   html:
     toc: true
     toc-depth: 2
-    code-fold: true
-    code-summary: "Show code"
 execute:
-  echo: true
+  echo: false
   warning: false
   message: false
   freeze: auto
+jupyter: python3
 ---
 
 ::: {.callout-note}
 ## A note on how this was made
-Like the other posts here, this was built by directing an AI research assistant: I set the question, the controlled vocabulary approach, and the visualization design; Claude wrote the scraper and analysis code and ran the theme extraction (including farming the catalog out to ten parallel sub-agents). I reviewed the intermediate outputs and the final numbers.
+Like the other posts here, this was built by directing an AI research assistant: I set the questions, the controlled vocabulary, the two-model reliability design, and the visualization choices; Claude wrote the scraper and analysis code and ran the theme extraction (two independent passes — one by Claude Haiku, one by Claude Sonnet — each farmed out to eight parallel sub-agents). I reviewed the intermediate outputs and the final numbers, and sent it back for rework repeatedly: claims made without supporting charts, a 20-theme vocabulary with obvious overlaps, a silent album-name bug that dropped 24 songs, and a codebook that defined my favorite theme too narrowly to find it.
 :::
 
-There's a running joke among Carly Rae Jepsen fans that every song is about yearning. It's the kind of claim that feels true but is rarely tested — which makes it a nice small-scale exercise in **LLM-assisted content analysis**: take all 183 songs in her catalog, have a language model tag each one against a fixed controlled vocabulary of twenty themes, and see whether the meme survives contact with the data.
+I've been on the Carly bandwagon since *E·MO·TION: Side B*, and I've always been struck by her consistent — but also contradictory — use of theme. The example that always stuck out to me is the song *The One*: OK, we can get together, but we're still just friends. It's followed one song later by *Fever* and the line "my breath was lost when you said 'friends'," and two songs later by *Body Language*: "I think I'm in trouble… I call you my lover, you call me your friend." The theme of friendship, positive and negative, persists into the albums that follow (*Window*, *Let's Be Friends*).
 
-This is deliberately a toy problem, but the machinery is not: extracting structured labels from unstructured text with a constrained vocabulary, sentiment attached to each label, processed in parallel batches, then aggregated and visualized. Swap lyrics for customer emails, loan servicing notes, or analyst commentary and it's the same pipeline.
+I'm not a literary person, or a music critic, but I am a data scientist interested in what I can do with the most powerful language-processing tools ever created. This post is an exploration of the themes of Carly Rae Jepsen's music, with a small cliffhanger: she has a new (double!) album coming out this year. Now that she's married, and having a kid, will it affect the music?
+
+The machinery: all 183 songs in the catalog, tagged independently by two different language models against a fixed controlled vocabulary of thirteen themes — friendship included, so my pet thread gets a fair test — with a sentiment attached to every tag, and only the tags **both models agree on** making it into the charts. It's a toy subject carrying a serious pipeline: swap lyrics for customer emails, loan servicing notes, or analyst commentary and nothing about the method changes.
 
 ---
 
@@ -32,12 +34,15 @@ This is deliberately a toy problem, but the machinery is not: extracting structu
 
 import json
 from pathlib import Path
+import numpy as np
 import pandas as pd
 
+VOCAB = ["desire", "new-love", "longing", "vulnerability", "heartbreak",
+         "melancholy", "obsession", "connection", "joy", "escapism",
+         "nostalgia", "empowerment", "friendship"]
+
 REMAP = {
-    "Tug of War (Japan CD)":                  "Tug of War",
     "Kiss (Tour Edition)":                    "Kiss",
-    "Call Me Maybe - Single":                 "Call Me Maybe - EP",
     "E•MO•TION":                              "E·MO·TION",
     "E•MO•TION (Japanese Edition)":           "E·MO·TION",
     "E•MO•TION (10th Anniversary Edition)":   "E·MO·TION",
@@ -47,54 +52,45 @@ REMAP = {
 }
 
 ALBUM_ORDER = [
-    "Tug of War",
-    "Dear You - EP",
-    "Disco Sweat",
-    "Curiosity",
-    "Call Me Maybe - EP",
-    "Kiss",
-    "E·MO·TION",
-    "E·MO·TION: Side B",
-    "Dedicated",
-    "Dedicated Side B",
-    "The Loneliest Time",
+    "Kiss", "E·MO·TION", "E·MO·TION: Side B",
+    "Dedicated", "Dedicated Side B", "The Loneliest Time",
     "The Loveliest Time",
-    "CRJ7*",
 ]
 
-records = [
-    json.loads(f.read_text(encoding="utf-8"))
-    for f in sorted(Path("analysis").glob("*.json"))
-]
+def load_model(model):
+    out = {}
+    for f in sorted(Path(f"analysis2/{model}").glob("*.json")):
+        r = json.loads(f.read_text(encoding="utf-8"))
+        themes = {t["theme"]: t.get("sentiment", "ambivalent")
+                  for t in r.get("themes", []) if t["theme"] in VOCAB}
+        out[f.name] = {"title": r["title"],
+                       "album": REMAP.get(r["album"], r["album"]),
+                       "themes": themes}
+    return out
 
+haiku  = load_model("haiku")
+sonnet = load_model("sonnet")
+
+# Consensus: a theme counts only if BOTH models tagged it.
+# Sentiment: if the models agree, keep it; if they disagree, record ambivalent.
 rows = []
-for rec in records:
-    album = REMAP.get(rec.get("album", ""), rec.get("album", ""))
-    if album not in ALBUM_ORDER:
+for k in set(haiku) & set(sonnet):
+    h, s = haiku[k], sonnet[k]
+    if h["album"] not in ALBUM_ORDER:
         continue
-    for t in rec.get("themes", []):
-        rows.append({
-            "album":     album,
-            "theme":     t["theme"],
-            "title":     rec["title"],
-            "sentiment": t.get("sentiment", "ambivalent"),
-        })
+    for t in set(h["themes"]) & set(s["themes"]):
+        sent = h["themes"][t] if h["themes"][t] == s["themes"][t] else "ambivalent"
+        rows.append({"album": h["album"], "theme": t, "title": h["title"], "sentiment": sent})
 
 df = pd.DataFrame(rows)
 
-theme_order = (
-    df.groupby("theme")["title"]
-    .nunique()
-    .sort_values(ascending=False)
-    .index.tolist()
-)
-
+theme_order = (df.groupby("theme")["title"].nunique()
+               .sort_values(ascending=False).index.tolist())
 album_totals = df.groupby("album")["title"].nunique().to_dict()
 
 cells = [
     {
-        "album": album,
-        "theme": theme,
+        "album": album, "theme": theme,
         "count": int(df[(df.album == album) & (df.theme == theme)]["title"].nunique()),
         "songs": df[(df.album == album) & (df.theme == theme)]["title"].unique().tolist(),
     }
@@ -114,7 +110,7 @@ ojs_define(
 
 ## Theme prevalence by album
 
-Each cell shows the fraction of an album's songs that carry a given theme. Themes are ordered top-to-bottom by total catalog frequency.
+Each cell shows the fraction of an album's songs that carry a given theme — counting only themes **both models independently assigned**. Themes are ordered top-to-bottom by total catalog frequency. Hover for the song lists.
 
 ```{ojs}
 //| label: heatmap
@@ -131,37 +127,22 @@ Plot.plot({
   height: 450,
   marginLeft: 130,
   marginBottom: 140,
-  x: {
-    domain: chart_data.albums,
-    tickRotate: -50,
-    label: null,
-    tickSize: 0,
-  },
-  y: {
-    domain: chart_data.themes,
-    label: null,
-    tickSize: 0,
-  },
+  x: { domain: chart_data.albums, tickRotate: -50, label: null, tickSize: 0 },
+  y: { domain: chart_data.themes, label: null, tickSize: 0 },
   color: {
-    type: "linear",
-    scheme: "purples",
-    domain: [0, 1],
-    label: "% of album songs",
-    legend: true,
-    tickFormat: "%",
+    type: "linear", scheme: "purples", domain: [0, 1],
+    label: "% of album songs", legend: true, tickFormat: "%",
   },
   marks: [
     Plot.cell(enriched, {
-      x: "album",
-      y: "theme",
+      x: "album", y: "theme",
       fill: d => d.count > 0 ? d.pct : null,
       inset: 0.5,
     }),
     Plot.tip(
       enriched.filter(d => d.count > 0),
       Plot.pointer({
-        x: "album",
-        y: "theme",
+        x: "album", y: "theme",
         title: d =>
           `${d.album} — ${d.theme}\n` +
           `${d.count} songs (${Math.round(d.pct * 100)}%)\n\n` +
@@ -174,24 +155,287 @@ Plot.plot({
 
 ## Findings
 
-**The meme is basically true.** *Desire* appears in 85 of the 154 charted songs (55%), *vulnerability* in 78 (51%), and *longing* in 66 (43%). No other theme reaches 40%. And the top three are astonishingly stable: every album across fifteen years carries all of them in roughly a third to two-thirds of its songs. Whatever else changes — producers, eras, synth budgets — the thematic core doesn't move.
+```{python}
+#| label: findings-numbers
 
-**The sentiment structure is where it gets interesting.** The vocabulary splits cleanly into three groups. *Desire*, *connection*, *new-love*, *intimacy*, and *infatuation* are tagged almost purely positive (zero negative tags among them). *Heartbreak* and *loss* are purely negative. But *vulnerability* (37 ambivalent / 32 negative / 9 positive) and *longing* (26 / 26 / 14) sit right on the fence — and those are two of the three biggest themes in the catalog. That's a quantitative fingerprint of the thing critics usually describe impressionistically: euphoric surfaces over an unresolved emotional core.
+from IPython.display import Markdown, display
 
-**B-sides are where the heartbreak lives — sometimes.** *E·MO·TION: Side B* is the most heartbreak-dense release in the catalog (62% of songs, versus 16% on *E·MO·TION* proper) and the most vulnerable (88%). The pattern doesn't repeat for *Dedicated* (47% heartbreak on the main album, 21% on its Side B), so it's an observation, not a law.
+n_songs   = df["title"].nunique()
+tot       = df.groupby("theme")["title"].nunique().sort_values(ascending=False)
+top3      = [f"*{t}* ({tot[t]} songs, {tot[t]/n_songs:.0%})" for t in tot.index[:3]]
+display(Markdown(
+    f"Under the strict consensus rule — a theme counts only when both models find it — "
+    f"the top of the catalog across all {n_songs} charted songs: {', '.join(top3)}. "
+    f"Consensus counts are a conservative floor: each model alone tags roughly 30–90% more."
+))
+```
 
-**The newest material leans hardest into yearning.** *CRJ7\** has the highest *longing* share of any release (64%) and pairs it with *connection* (50%) — less infatuation, more ache. The early catalog (through *Kiss*, n=47) was led by *vulnerability* (57%); everything since *E·MO·TION* is led by *desire* (57%). If you wanted a one-line career arc: from nervous to wanting.
+**Wanting dominates.** *Desire* (36% of songs) and *vulnerability* (35%) top the catalog under the strictest counting rule available, and they lead on nearly every individual release across the decade. Whatever else changes — producers, eras, synth budgets — the thematic core doesn't move.
 
----
+**But prevalence is only half the story.** The claim I want to make — that CRJ's signature is euphoric surfaces over an unresolved emotional core — is a claim about *sentiment structure*, so here is the sentiment structure:
+
+```{python}
+#| label: fig-theme-sentiment
+#| fig-cap: "Sentiment mix of each theme's consensus tags (sentiment kept only when both models agree; disagreements are recorded as ambivalent). Themes ordered by share of positive tags."
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+
+plt.rcParams.update({
+    "figure.dpi": 150, "axes.spines.top": False, "axes.spines.right": False,
+    "font.size": 9, "axes.titlesize": 11, "axes.titleweight": "bold",
+    "figure.facecolor": "#fafafa", "axes.facecolor": "#fafafa",
+})
+
+C = {"positive": "#54a24b", "ambivalent": "#eeca3b", "negative": "#e45756"}
+
+sent = (df.groupby(["theme", "sentiment"])["title"].nunique()
+        .unstack(fill_value=0)
+        .reindex(columns=["positive", "ambivalent", "negative"], fill_value=0))
+sent_pct = (sent.T / sent.sum(axis=1)).T
+sent_pct = sent_pct.sort_values("positive")
+
+fig, ax = plt.subplots(figsize=(9, 5.5))
+left = np.zeros(len(sent_pct))
+for col in ["positive", "ambivalent", "negative"]:
+    ax.barh(sent_pct.index, sent_pct[col], left=left, color=C[col], label=col, height=0.65)
+    left += sent_pct[col].values
+for i, (theme, row) in enumerate(sent_pct.iterrows()):
+    ax.text(1.01, i, f"n={sent.loc[theme].sum()}", va="center", fontsize=7, color="#666")
+ax.xaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+ax.set_xlim(0, 1)
+ax.legend(frameon=False, loc="lower right", fontsize=8)
+ax.set_title("How each theme feels: sentiment share per theme")
+plt.tight_layout()
+plt.show()
+```
+
+The vocabulary splits into three clean tiers. *Joy* and *new-love* are 100% positive; *heartbreak* and *melancholy* are never positive. And in between sit exactly the themes that define the catalog: **vulnerability (87% ambivalent-or-negative), longing (86%), obsession (92%)** — huge themes that the models systematically refuse to call happy *or* sad. The pop is bright; the wanting underneath it is unresolved.
+
+**And the balance has shifted over her career:**
+
+```{python}
+#| label: fig-sentiment-time
+#| fig-cap: "Sentiment mix of all consensus theme-tags per release, in chronological order (2012–2023). The numbers above each bar show tag counts."
+
+mix = (df.groupby(["album", "sentiment"])["theme"].count()
+       .unstack(fill_value=0)
+       .reindex(index=ALBUM_ORDER, columns=["positive", "ambivalent", "negative"], fill_value=0))
+mix_pct = (mix.T / mix.sum(axis=1)).T
+
+fig, ax = plt.subplots(figsize=(10, 5))
+x = np.arange(len(ALBUM_ORDER))
+bottom = np.zeros(len(mix_pct))
+for col in ["positive", "ambivalent", "negative"]:
+    ax.bar(x, mix_pct[col], bottom=bottom, color=C[col], label=col, width=0.7)
+    bottom += mix_pct[col].values
+for i, a in enumerate(ALBUM_ORDER):
+    ax.text(i, 1.02, f"{int(mix.loc[a].sum())}", ha="center", fontsize=7, color="#666")
+ax.set_xticks(x)
+ax.set_xticklabels(ALBUM_ORDER, rotation=50, ha="right", fontsize=8)
+ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+ax.set_ylim(0, 1.06)
+ax.legend(frameon=False, loc="lower left", fontsize=8)
+ax.set_title("Sentiment mix by release, 2011 → 2026")
+plt.tight_layout()
+plt.show()
+```
+
+*Kiss* (2012) is the most balanced record in the catalog — 39% positive, 37% ambivalent, 24% negative, a near-even three-way split. From *E·MO·TION* (2015) onward, positive tags clearly lead on every main album, peaking with *The Loneliest Time* (59% positive — the title was a feint). The wanting got steadily happier. But look at the B-side columns in that chart — *E·MO·TION: Side B* is the only release where positive comes *last* — and that deserves its own section.
+
+## Main albums vs. B-sides
+
+The B-side releases are where I got on the bandwagon, and they've always felt like a distinct mode — so let's aggregate and compare directly. The B-side group here is *E·MO·TION: Side B*, *Dedicated Side B*, and *The Loveliest Time* (a companion record in all but name); the main group is the four principal albums.
+
+```{python}
+#| label: fig-bside
+#| fig-cap: "Main albums (Kiss, E·MO·TION, Dedicated, The Loneliest Time; 78 songs) vs. B-side releases (E·MO·TION: Side B, Dedicated Side B, The Loveliest Time; 35 songs). Left: sentiment mix of all consensus tags. Right: theme prevalence as % of group songs."
+
+MAIN_ALBUMS  = ["Kiss", "E·MO·TION", "Dedicated", "The Loneliest Time"]
+BSIDE_ALBUMS = ["E·MO·TION: Side B", "Dedicated Side B", "The Loveliest Time"]
+
+grp_df = df[df.album.isin(MAIN_ALBUMS + BSIDE_ALBUMS)].copy()
+grp_df["group"] = np.where(grp_df.album.isin(MAIN_ALBUMS), "Main albums", "B-sides")
+n_grp = grp_df.groupby("group")["title"].nunique()
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), constrained_layout=True)
+
+gmix = (grp_df.groupby(["group", "sentiment"])["theme"].count().unstack(fill_value=0)
+        .reindex(index=["Main albums", "B-sides"],
+                 columns=["positive", "ambivalent", "negative"]))
+gmix_pct = (gmix.T / gmix.sum(axis=1)).T
+x = np.arange(3)
+w = 0.36
+for i, g in enumerate(["Main albums", "B-sides"]):
+    bars = axes[0].bar(x + (i - 0.5) * w, gmix_pct.loc[g], width=w,
+                       color=[C[c] for c in gmix_pct.columns],
+                       alpha=1.0 if g == "Main albums" else 0.55,
+                       edgecolor="white", label=g)
+    for xi, v in zip(x + (i - 0.5) * w, gmix_pct.loc[g]):
+        axes[0].text(xi, v + 0.01, f"{v:.0%}", ha="center", fontsize=8,
+                     fontweight="bold" if g == "B-sides" else "normal")
+axes[0].set_xticks(x)
+axes[0].set_xticklabels(["positive", "ambivalent", "negative"])
+axes[0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+axes[0].set_title("Sentiment mix (solid = main, faded = B-sides)")
+
+prev = (grp_df.pivot_table(index="theme", columns="group", values="title",
+                           aggfunc=pd.Series.nunique).fillna(0))
+prev_pct = prev / n_grp
+top8 = prev.sum(axis=1).nlargest(8).index
+prev_pct = prev_pct.loc[top8]
+y = np.arange(len(top8))
+axes[1].barh(y - 0.2, prev_pct["Main albums"], height=0.38, color="#6a51a3", label="Main albums")
+axes[1].barh(y + 0.2, prev_pct["B-sides"], height=0.38, color="#6a51a3", alpha=0.5, label="B-sides")
+axes[1].set_yticks(y)
+axes[1].set_yticklabels(top8, fontsize=8)
+axes[1].invert_yaxis()
+axes[1].xaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+axes[1].legend(frameon=False, fontsize=8)
+axes[1].set_title("Theme prevalence, % of group songs")
+plt.show()
+```
+
+Two things come out of the aggregation. **The B-sides are not the sad drawer** — they're actually *less* negative than the main albums (17% vs 24% of tags) — **they're the unresolved drawer**, running 38% ambivalent against the mains' 27%. And their theme profile tilts: more *desire*, *new-love*, and *obsession*, dramatically less *longing* (6% of B-side songs vs 24% of main-album songs) and less *escapism*, *vulnerability*, and *connection*. The main albums carry the ache and the bond; the B-sides carry the want, unresolved. Given 35 songs in the B-side group, the individual theme gaps are noisy — but the longing gap and the ambivalence gap are large enough to take seriously.
+
+## The friendship hypothesis: expected vs. outcome
+
+The opening of this post committed me to a hypothesis: friendship is a real, recurring thread in this catalog — I can hear it. The first version of this analysis couldn't test that, because *friendship* wasn't in the vocabulary and no model volunteered it. This version put it in the controlled vocabulary on equal footing with the other twelve themes, defined as "platonic bonds, friends as subject or support."
+
+**Expected:** a modest but visible presence — call it 5–10% of songs.
+
+**Outcome:**
+
+```{python}
+#| label: tbl-friendship
+#| tbl-cap: "Every friendship tag across both models (canonical releases). Consensus = both models agree."
+
+fr_rows = []
+for k in sorted(set(haiku) & set(sonnet)):
+    h, s = haiku[k], sonnet[k]
+    if h["album"] not in ALBUM_ORDER:
+        continue
+    ih, isn = "friendship" in h["themes"], "friendship" in s["themes"]
+    if ih or isn:
+        fr_rows.append({
+            "Song": h["title"], "Release": h["album"],
+            "Haiku": "✓" if ih else "", "Sonnet": "✓" if isn else "",
+            "Consensus": "✓" if ih and isn else "",
+        })
+display(Markdown(pd.DataFrame(fr_rows).to_markdown(index=False)))
+
+n_fr = sum(1 for r in fr_rows if r["Consensus"] == "✓")
+display(Markdown(
+    f"**{n_fr} consensus songs out of {n_songs}** — about {n_fr/n_songs:.0%} of the catalog, "
+    f"and even the union of both models' tags stays under 5%."
+))
+```
+
+The hypothesis fails, informatively. Even with the theme explicitly on the menu, both models almost never reach for it — and the songs where they do are the ones a fan would predict (*Boy Problems* is literally about choosing your best friend over a boyfriend; *Let's Be Friends* is a breakup joke about the phrase). This is worth pausing on as a methods lesson: **a controlled vocabulary can only fail to find what you never offered it** — the first analysis was structurally blind to friendship — **but offering it doesn't conjure it either.** The catalog really is about romantic wanting; platonic love is a rounding error in it. Expected 5–10%, observed ~2%.
+
+### Where the word "friend" actually lives
+
+Here's the part that bothered me: the three songs from the opening — *The One*, *Fever*, *Body Language* — received **zero friendship tags from either model**. If the theme analysis can't see the exact songs that made me hear the theme, something is wrong with the songs, the models, or the codebook. So we audited it directly: a keyword scan of the raw lyrics finds **19 songs in the charted catalog that use the word "friend"** — nearly ten times the consensus tag count. Reading each usage in context and classifying it by hand:
+
+```{python}
+#| label: tbl-friend-usage
+#| tbl-cap: "Every canonical-catalog song whose lyrics contain 'friend', classified by how the word is used. Classification is mine, from reading each usage in context."
+
+friend_usage = [
+    # (song, usage category)
+    ("The One",               "Contested label — friend who should stay the night"),
+    ("Fever",                 "Contested label — demoted from lover to 'friends'"),
+    ("Body Language",         "Contested label — lover vs. friend, fought over directly"),
+    ("Store",                 "Contested label — 'maybe one day we'll be friends' as exit line"),
+    ("Roses",                 "Contested label — the ex offering to stay a friend"),
+    ("Your Type",             "Contested label — unrequited from inside the friend zone"),
+    ("All That",              "Contested label — friendship offered as devotion to a maybe-lover"),
+    ("Turn Me Up",            "Contested label — 'now that you're just a friend'"),
+    ("Hurt So Good",          "Contested label — 'the friend that you misunderstood'"),
+    ("Beautiful",             "Contested label — 'just friends, the beginning or the end'"),
+    ("Lost in Devotion",      "Contested label — 'friends' used ironically for something more"),
+    ("Let's Be Friends",      "Contested label — the phrase as breakup sarcasm"),
+    ("Feels Right",           "Contested label — 'my complicated friend'"),
+    ("Boy Problems",          "Platonic, real stakes — best friend vs. boyfriend"),
+    ("Shy Boy",               "Background cast — 'my friends want to meet ya'"),
+    ("Keep Away",             "Background cast — friends inherited from an ex"),
+    ("Happy Not Knowing",     "Background cast — friends as chorus of opinions"),
+    ("Anything to Be with You","Background cast — willing to befriend his friends"),
+    ("Tonight I'm Getting Over You", "Background cast — passing mention"),
+]
+fu = pd.DataFrame(friend_usage, columns=["Song", "How 'friend' is used"])
+fu["Category"] = fu["How 'friend' is used"].str.split(" — ").str[0]
+display(Markdown(fu[["Song", "How 'friend' is used"]].to_markdown(index=False)))
+cat_counts = fu["Category"].value_counts()
+display(Markdown(
+    f"(*Don't Speak* and *Both Sides Now* also mention friends but are covers, not CRJ's writing. "
+    f"Counts: **{cat_counts.get('Contested label', 0)} contested-label**, "
+    f"{cat_counts.get('Platonic, real stakes', 0)} platonic-with-stakes, "
+    f"{cat_counts.get('Background cast', 0)} background mentions.)"
+))
+```
+
+So the models didn't miss friendship — **the codebook defined it away.** "Platonic bonds" was the definition, and the single most common way this catalog uses friendship is precisely *non*-platonic: it's the label for what romance is straining against — the friend who should stay the night, the lover insisting "don't call me your friend." **Thirteen of the nineteen songs that say "friend" live on that boundary** — and five of them (*The One*, *Fever*, *Body Language*, *Store*, *Roses*) sit together on *E·MO·TION: Side B*, three of them consecutive tracks. Five of that record's eight songs use friend-boundary language. My ear was right; my codebook was wrong.
+
+That's the deeper methods lesson: in content analysis, **the codebook is a hypothesis, and boundary cases are where it shows its seams.** When the new album gets run through this pipeline, the vocabulary gets a fourteenth code — *friend-lover boundary* — and we'll see whether marriage moved the catalog off that line.
+
+## How much should you trust these tags?
+
+Every number above depends on model judgment, so the design measures it: two models, independent passes, same vocabulary and instructions.
+
+```{python}
+#| label: tbl-agreement
+#| tbl-cap: "Inter-model agreement per theme: Cohen's κ for whether the theme applies, and sentiment agreement among consensus tags."
+
+common = set(haiku) & set(sonnet)
+ag_rows = []
+for t in VOCAB:
+    both = h_only = s_only = neither = sent_agree = 0
+    for k in common:
+        a, b = t in haiku[k]["themes"], t in sonnet[k]["themes"]
+        if a and b:
+            both += 1
+            if haiku[k]["themes"][t] == sonnet[k]["themes"][t]:
+                sent_agree += 1
+        elif a: h_only += 1
+        elif b: s_only += 1
+        else: neither += 1
+    n = len(common)
+    p_h, p_s = (both + h_only) / n, (both + s_only) / n
+    po = (both + neither) / n
+    pe = p_h * p_s + (1 - p_h) * (1 - p_s)
+    kappa = (po - pe) / (1 - pe) if pe < 1 else float("nan")
+    ag_rows.append({
+        "Theme": t, "Haiku n": both + h_only, "Sonnet n": both + s_only,
+        "Consensus n": both, "κ": round(kappa, 2),
+        "Sentiment agreement": f"{sent_agree/both:.0%}" if both else "—",
+    })
+ag = pd.DataFrame(ag_rows).sort_values("Consensus n", ascending=False)
+display(Markdown(ag.to_markdown(index=False)))
+```
+
+Three observations. **Agreement is moderate-to-substantial but far from perfect** — κ runs 0.52–0.81, and the mean per-song Jaccard overlap between the two models' theme sets is 0.62. Anyone treating single-model LLM labels as ground truth should sit with that. **The models disagree most about feelings, not topics**: sentiment agreement is 100% on *new-love* and *joy* but under 50% on *obsession* and *nostalgia* — exactly the themes whose emotional valence is genuinely ambiguous in the songs. **Discipline differs by model**: Haiku invented three out-of-vocabulary tags (`devotion`, `unrequited`) that had to be discarded; Sonnet produced zero. Small, but it's the kind of thing you only learn by running two raters.
 
 ## Method
 
-**Data collection.** 183 CRJ songs with lyrics were scraped from the Genius API using `lyricsgenius`. 197 songs were identified across 42 releases; 14 were excluded (4 from *CRJ7\** not yet indexed on Genius; the rest are remixes or instrumentals with no lyrics page). Album assignment comes from Genius metadata: regional and anniversary editions are consolidated into their canonical release (e.g. the *E·MO·TION* Japanese and 10th Anniversary editions count as *E·MO·TION*), and remix albums, remix EPs, and one-off singles are excluded — leaving 154 songs across the 13 canonical releases in the chart.
+**Data collection.** 183 CRJ songs with lyrics scraped from the Genius API using `lyricsgenius`. 197 songs were identified across 42 releases; 14 were excluded as remixes or instrumentals with no lyrics page. Album assignment comes from Genius metadata: regional and anniversary editions are consolidated into their canonical release; remix albums, remix EPs, and one-off singles are excluded; the pre-*Kiss* Japan-era material (Tug of War and the early EPs) is excluded to keep the story on the major-label catalog; and 14 songs Genius lists under a release labeled *CRJ7\** — apparently leaked, unconfirmed material — are excluded as well. That leaves **113 songs across the 7 releases from *Kiss* (2012) onward**.
 
-**Theme extraction.** Each song was sent to Claude Haiku (`claude-haiku-4-5-20251001`) with a prompt requiring it to identify 3–6 themes from a fixed controlled vocabulary of 20 terms and assign a sentiment (`positive`, `negative`, `ambivalent`) to each. 10 Claude Code sub-agents processed the catalog in parallel batches of ~18 songs, writing per-song JSON results to `analysis/`.
+**Vocabulary.** The original 20-term vocabulary had overlapping terms; tag co-occurrence (Jaccard) drove a consolidation to 13: `desire` · `new-love` · `longing` · `vulnerability` · `heartbreak` · `melancholy` · `obsession` · `connection` · `joy` · `escapism` · `nostalgia` · `empowerment` · `friendship` (added to test a specific hypothesis, see above). Merges: infatuation→desire, loss+melancholy→melancholy, euphoria→joy, fantasy→escapism, resilience+self-worth→empowerment, unrequited-love→longing, intimacy→connection.
 
-**Controlled vocabulary.** `longing` · `desire` · `heartbreak` · `obsession` · `infatuation` · `self-worth` · `vulnerability` · `joy` · `euphoria` · `fantasy` · `escapism` · `nostalgia` · `resilience` · `empowerment` · `melancholy` · `intimacy` · `unrequited-love` · `new-love` · `loss` · `connection`
+**Extraction.** Each song was independently tagged twice — once by Claude Haiku, once by Claude Sonnet — with an identical prompt requiring 2–5 themes strictly from the vocabulary plus a sentiment (`positive` / `negative` / `ambivalent`) per theme. Eight parallel sub-agents per model processed the catalog, writing per-song JSON.
 
-**Visualization.** The heatmap covers 13 canonical studio albums and EPs (remixes, tour editions, and standalone singles excluded). Cell values are the fraction of an album's songs that carry each theme. Albums are ordered chronologically; themes are ordered by total catalog frequency.
+**Consensus rule.** A theme counts only if both models assigned it. Sentiment is kept when the models agree and recorded as `ambivalent` when they disagree — which biases the ambivalence findings *upward* slightly; the fence-sitting result in the sentiment chart also holds using each model's tags alone.
 
-**Caveats.** Theme tags are one model's reading of each lyric against a fixed vocabulary — a different vocabulary or model would shift the counts, though the dominant themes are robust to that. Genius album metadata is imperfect: a few songs appear under compilation or single releases rather than their canonical album, so per-album song counts differ slightly from official tracklists.
+**Caveats.** Theme tags are model judgments against a fixed vocabulary; the agreement table above is the honest error bar. Genius metadata is imperfect (a few songs sit under compilations rather than their canonical album) and two songs' lyrics are truncated in the source scrape (*Muscle Memory*, the *Disco Sweat* version of *Julien*), making their tags low-confidence. Sentiment is per-theme, not per-song — a song can be joyful about desire and devastated about heartbreak at once, and many are.
+
+## What happens next (the cliffhanger, resolved later this year)
+
+Everything above describes an artist who has spent fifteen years writing about wanting — with the negativity fading and the joy share climbing since 2015. And now the ground is shifting under the catalog: a new **double album** arrives later this year — the first written married, the first written as a parent.
+
+The fun of having a quantitative baseline is that "the new album feels different" stops being vibes. When it lands, this pipeline reruns in an afternoon, and we get to ask pointed questions. Does *desire* — the top theme of every era so far — finally cede to *connection*? Does the ambivalent core (vulnerability, longing, obsession) resolve toward the positive column? Does *friendship* — or its domestic successor — escape the 2% basement, and does the *friend-lover boundary* code light up now that the boundary question is, presumably, settled? And a structural one: a double album is, in effect, an album that ships with its own B-side — and we just saw that her extended-format material runs more ambivalent and more desire-forward than her main sequences. Does that hold when the two halves ship together?
+
+Consider this post the "before" measurement. See you after the album drops.
+
+---
+
+*Data: [Genius API](https://docs.genius.com/) via `lyricsgenius` · Theme extraction: Claude Haiku & Claude Sonnet via Claude Code sub-agents, July 2026 · Analysis code in the [site repository](https://github.com/apkoenigsberg/website).*

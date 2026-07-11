@@ -1,0 +1,18 @@
+{
+  "title": "Boy Problems",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "friendship",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "empowerment",
+      "sentiment": "positive"
+    }
+  ]
+}

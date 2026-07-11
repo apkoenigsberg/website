@@ -1,0 +1,18 @@
+{
+  "title": "Ice Cream Cone",
+  "album": "CRJ7*",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    }
+  ]
+}

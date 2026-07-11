@@ -1,0 +1,18 @@
+{
+  "title": "Sweetie",
+  "album": "Kiss (Tour Edition)",
+  "themes": [
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}
