@@ -436,7 +436,7 @@ The three methods complement each other. Cross-country only fires when something
 
 ## Applying the Same Logic to Violence Data
 
-The rolling-average deviation method transfers directly to the ACLED violence data. The same intuition applies: we're not asking whether a country is violent in absolute terms, but whether its current violence level is unusual relative to its own recent baseline.
+The rolling-average deviation method transfers directly to the ACLED violence data. The same intuition applies: we're not asking whether a country is violent in absolute terms, but whether its current violence level is unusual relative to its own recent baseline. The chunk below builds a monthly violence series per country; the resulting anomaly flags appear alongside the trade flags in the per-country panels of the next section.
 
 ```{python}
 #| label: violence-anomalies
@@ -595,7 +595,7 @@ Ukraine and Venezuela show meaningful co-occurrence windows. Yemen — despite h
 
 The core question is: if trade anomalies and violence anomalies were completely independent, how often would they co-occur just by random alignment?
 
-Following the user's framing: if trade anomalies occur with probability *p*_t (the fraction of months flagged) and violence anomalies with probability *p*_v, then under independence, the probability of both occurring in the same month is simply *p*_t × *p*_v — exactly the probability of two independent coins both landing heads, where each coin is weighted by its respective anomaly rate.
+The framing is simple: if trade anomalies occur with probability *p*_t (the fraction of months flagged) and violence anomalies with probability *p*_v, then under independence, the probability of both occurring in the same month is simply *p*_t × *p*_v — exactly the probability of two independent coins both landing heads, where each coin is weighted by its respective anomaly rate.
 
 We use two tests:
 
@@ -891,9 +891,11 @@ First, the rolling average method may actually work against us here. If trade an
 
 Second, the causal mechanisms are diverse and not time-locked to a 3-month window. Sanctions regimes can take months or years to fully transmit into trade data. Supply chain rerouting can precede visible trade disruption. Not all conflict affects trade equally — a country's internal violence may have limited impact on its international trade if the conflict is geographically contained.
 
-### Where the Method Does Work
+### Where the Method Does Work — With a Caveat
 
-For the six countries that do reach significance, the stories are coherent:
+Before celebrating the six countries that reach p < 0.05, note the multiple-comparisons problem: with 148 tests at a 5% threshold, we'd expect about 7 significant results *by chance alone* even if no relationship existed anywhere — and the flat p-value distribution above says that's exactly the world we're in. Six observed against seven expected is not evidence of a subset of "real" cases; it's what a null looks like. Two of the six (Dominican Republic and Hungary) have no obvious conflict-trade narrative at all, which is what false positives tend to look like.
+
+That said, for four of the six, the stories are at least coherent — worth flagging as hypotheses, not conclusions:
 
 - **Venezuela**: the 2019 economic collapse, driven by the political crisis and US sanctions, shows clear co-occurrence of trade anomalies and violence spikes
 - **Myanmar**: the 2021 coup and subsequent violence aligns with trade disruption
