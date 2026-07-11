@@ -1,0 +1,12 @@
+{
+  "title": "So Right",
+  "album": "The Loveliest Time",
+  "filename": "046_so_right.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "connection", "sentiment": "ambivalent" },
+    { "theme": "intimacy", "sentiment": "ambivalent" }
+  ]
+}

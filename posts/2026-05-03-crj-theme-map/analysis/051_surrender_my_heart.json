@@ -1,0 +1,12 @@
+{
+  "title": "Surrender My Heart",
+  "album": "The Loneliest Time",
+  "filename": "051_surrender_my_heart.json",
+  "themes": [
+    { "theme": "vulnerability", "sentiment": "positive" },
+    { "theme": "self-worth", "sentiment": "ambivalent" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

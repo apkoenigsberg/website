@@ -1,0 +1,11 @@
+{
+  "title": "Love Again",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "030_love_again.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "melancholy", "sentiment": "ambivalent" }
+  ]
+}

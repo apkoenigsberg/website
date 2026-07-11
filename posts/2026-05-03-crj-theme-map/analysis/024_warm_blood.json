@@ -1,0 +1,11 @@
+{
+  "title": "Warm Blood",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "024_warm_blood.json",
+  "themes": [
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" }
+  ]
+}

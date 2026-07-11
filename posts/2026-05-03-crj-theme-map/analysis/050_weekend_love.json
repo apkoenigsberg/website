@@ -1,0 +1,11 @@
+{
+  "title": "Weekend Love",
+  "album": "The Loveliest Time",
+  "filename": "050_weekend_love.json",
+  "themes": [
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "ambivalent" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" }
+  ]
+}

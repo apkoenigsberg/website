@@ -1,0 +1,11 @@
+{
+  "title": "Bucket",
+  "album": "Tug of War (Japan CD)",
+  "filename": "160_bucket.json",
+  "themes": [
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "nostalgia", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

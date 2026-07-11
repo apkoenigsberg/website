@@ -1,0 +1,12 @@
+{
+  "title": "Psychedelic Switch",
+  "album": "The Loveliest Time",
+  "filename": "045_psychedelic_switch.json",
+  "themes": [
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

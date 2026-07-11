@@ -1,0 +1,12 @@
+{
+  "title": "No Drug Like Me",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "084_no_drug_like_me.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "empowerment", "sentiment": "ambivalent" }
+  ]
+}

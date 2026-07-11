@@ -1,0 +1,27 @@
+{
+  "title": "Stay Away",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "070_stay_away.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

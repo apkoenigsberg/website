@@ -1,0 +1,11 @@
+{
+  "title": "This Kiss (Jason Nevins Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "127_this_kiss_jason_nevins_remix.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Sweet Talker",
+  "album": "Tug of War (Japan CD)",
+  "filename": "167_sweet_talker.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

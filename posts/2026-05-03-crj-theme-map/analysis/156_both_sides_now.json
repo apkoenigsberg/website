@@ -1,0 +1,12 @@
+{
+  "title": "Both Sides Now",
+  "album": "Call Me Maybe - Single",
+  "filename": "156_both_sides_now.json",
+  "themes": [
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "resilience", "sentiment": "ambivalent" }
+  ]
+}

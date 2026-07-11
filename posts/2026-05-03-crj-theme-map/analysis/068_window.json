@@ -1,0 +1,27 @@
+{
+  "title": "Window",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "068_window.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

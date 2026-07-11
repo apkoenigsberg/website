@@ -1,0 +1,11 @@
+{
+  "title": "Turn Me Up",
+  "album": "Kiss (Tour Edition)",
+  "filename": "139_turn_me_up.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "ambivalent" }
+  ]
+}

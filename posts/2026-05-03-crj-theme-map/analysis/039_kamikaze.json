@@ -1,0 +1,12 @@
+{
+  "title": "Kamikaze",
+  "album": "The Loveliest Time",
+  "filename": "039_kamikaze.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "ambivalent" }
+  ]
+}

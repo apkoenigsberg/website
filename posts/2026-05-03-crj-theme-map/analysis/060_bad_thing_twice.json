@@ -1,0 +1,27 @@
+{
+  "title": "Bad Thing Twice",
+  "album": "The Loneliest Time",
+  "filename": "060_bad_thing_twice.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

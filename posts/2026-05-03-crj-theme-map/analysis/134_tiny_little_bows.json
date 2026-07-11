@@ -1,0 +1,11 @@
+{
+  "title": "Tiny Little Bows",
+  "album": "Kiss (Tour Edition)",
+  "filename": "134_tiny_little_bows.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Heavy Lifting",
+  "album": "Tug of War (Japan CD)",
+  "filename": "164_heavy_lifting.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Shy Boy",
+  "album": "The Loveliest Time",
+  "filename": "042_shy_boy.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" }
+  ]
+}

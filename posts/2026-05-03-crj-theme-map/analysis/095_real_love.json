@@ -1,0 +1,11 @@
+{
+  "title": "Real Love",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "095_real_love.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

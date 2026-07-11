@@ -1,0 +1,27 @@
+{
+  "title": "Felt This Way",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "069_felt_this_way.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

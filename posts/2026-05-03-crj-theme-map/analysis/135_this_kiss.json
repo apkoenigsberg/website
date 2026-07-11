@@ -1,0 +1,11 @@
+{
+  "title": "This Kiss",
+  "album": "Kiss (Tour Edition)",
+  "filename": "135_this_kiss.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

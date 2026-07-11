@@ -1,0 +1,27 @@
+{
+  "title": "So Nice",
+  "album": "The Loneliest Time",
+  "filename": "059_so_nice.json",
+  "themes": [
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

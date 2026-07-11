@@ -1,0 +1,10 @@
+{
+  "title": "Good Time (Adam Young Remix)",
+  "album": "Kiss (Tour Edition)",
+  "filename": "152_good_time_adam_young_remix.json",
+  "themes": [
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" }
+  ]
+}

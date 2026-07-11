@@ -1,0 +1,12 @@
+{
+  "title": "Call Me Maybe (10 Kings vs. Ollie Green Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "122_call_me_maybe_10_kings_vs_ollie_green_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

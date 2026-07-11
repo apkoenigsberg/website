@@ -1,0 +1,23 @@
+{
+  "title": "Ruby",
+  "album": "CRJ7*",
+  "filename": "007_ruby.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

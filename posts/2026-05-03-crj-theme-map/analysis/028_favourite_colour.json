@@ -1,0 +1,11 @@
+{
+  "title": "Favourite Colour",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "028_favourite_colour.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

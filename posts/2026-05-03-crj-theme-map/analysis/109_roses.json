@@ -1,0 +1,13 @@
+{
+  "title": "Roses",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "109_roses.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

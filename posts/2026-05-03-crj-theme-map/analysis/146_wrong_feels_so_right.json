@@ -1,0 +1,12 @@
+{
+  "title": "Wrong Feels So Right",
+  "album": "Kiss (Tour Edition)",
+  "filename": "146_wrong_feels_so_right.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "fantasy", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "infatuation", "sentiment": "ambivalent" }
+  ]
+}

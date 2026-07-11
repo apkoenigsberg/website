@@ -1,0 +1,12 @@
+{
+  "title": "Almost Said It",
+  "album": "Kiss (Tour Edition)",
+  "filename": "149_almost_said_it.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" },
+    { "theme": "infatuation", "sentiment": "ambivalent" }
+  ]
+}

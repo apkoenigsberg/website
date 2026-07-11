@@ -1,0 +1,11 @@
+{
+  "title": "Your Type",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "021_your_type.json",
+  "themes": [
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "self-worth", "sentiment": "negative" }
+  ]
+}

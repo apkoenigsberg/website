@@ -1,0 +1,11 @@
+{
+  "title": "Hurt So Good",
+  "album": "Kiss (Tour Edition)",
+  "filename": "140_hurt_so_good.json",
+  "themes": [
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "fantasy", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Julien (Disco Sweat version)",
+  "album": "Disco Sweat",
+  "filename": "180_julien_disco_sweat_version.json",
+  "themes": [
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

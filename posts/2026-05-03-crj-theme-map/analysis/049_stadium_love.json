@@ -1,0 +1,11 @@
+{
+  "title": "Stadium Love",
+  "album": "The Loveliest Time",
+  "filename": "049_stadium_love.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "fantasy", "sentiment": "positive" }
+  ]
+}

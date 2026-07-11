@@ -1,0 +1,19 @@
+{
+  "title": "Sunshine On My Shoulders",
+  "album": "Tug of War (Japan CD)",
+  "filename": "165_sunshine_on_my_shoulders.json",
+  "themes": [
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "escapism",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

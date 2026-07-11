@@ -1,0 +1,11 @@
+{
+  "title": "Far Away",
+  "album": "The Loneliest Time",
+  "filename": "054_far_away.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

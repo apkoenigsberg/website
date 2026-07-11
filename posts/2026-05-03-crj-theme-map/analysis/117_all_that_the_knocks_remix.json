@@ -1,0 +1,12 @@
+{
+  "title": "All That (The Knocks Remix)",
+  "album": "E\u2022MO\u2022TION Remixed +",
+  "filename": "117_all_that_the_knocks_remix.json",
+  "themes": [
+    { "theme": "self-worth", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "positive" }
+  ]
+}

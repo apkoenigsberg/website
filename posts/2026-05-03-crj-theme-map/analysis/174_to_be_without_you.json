@@ -1,0 +1,27 @@
+{
+  "title": "To Be Without You",
+  "album": "Dear You - EP",
+  "filename": "174_to_be_without_you.json",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "unrequited-love",
+      "sentiment": "negative"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Party for One",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "097_party_for_one.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

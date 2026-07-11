@@ -1,0 +1,12 @@
+{
+  "title": "Party for One (Sawyr Remix)",
+  "album": "Party for One (Remixes)",
+  "filename": "100_party_for_one_sawyr_remix.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Guitar String / Wedding Ring",
+  "album": "Kiss (Tour Edition)",
+  "filename": "143_guitar_string_wedding_ring.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "I Know You Have a Girlfriend",
+  "album": "Kiss (Tour Edition)",
+  "filename": "148_i_know_you_have_a_girlfriend.json",
+  "themes": [
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" }
+  ]
+}

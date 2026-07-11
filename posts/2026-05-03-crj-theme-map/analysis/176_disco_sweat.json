@@ -1,0 +1,23 @@
+{
+  "title": "Disco Sweat",
+  "album": "Disco Sweat",
+  "filename": "176_disco_sweat.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

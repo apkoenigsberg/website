@@ -1,0 +1,12 @@
+{
+  "title": "Comeback",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "076_comeback.json",
+  "themes": [
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" },
+    { "theme": "empowerment", "sentiment": "positive" }
+  ]
+}

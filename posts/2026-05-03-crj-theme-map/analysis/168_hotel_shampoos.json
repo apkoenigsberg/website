@@ -1,0 +1,27 @@
+{
+  "title": "Hotel Shampoos",
+  "album": "Tug of War (Japan CD)",
+  "filename": "168_hotel_shampoos.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

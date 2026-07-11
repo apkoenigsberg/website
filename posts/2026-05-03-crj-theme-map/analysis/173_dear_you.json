@@ -1,0 +1,27 @@
+{
+  "title": "Dear You",
+  "album": "Dear You - EP",
+  "filename": "173_dear_you.json",
+  "themes": [
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "unrequited-love",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

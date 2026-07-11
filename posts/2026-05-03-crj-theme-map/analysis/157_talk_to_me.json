@@ -1,0 +1,12 @@
+{
+  "title": "Talk to Me",
+  "album": "Call Me Maybe - EP",
+  "filename": "157_talk_to_me.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" }
+  ]
+}

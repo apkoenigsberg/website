@@ -1,0 +1,27 @@
+{
+  "title": "All That",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "018_all_that.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "positive"
+    }
+  ]
+}

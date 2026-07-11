@@ -1,0 +1,12 @@
+{
+  "title": "Fake Mona Lisa",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "074_fake_mona_lisa.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

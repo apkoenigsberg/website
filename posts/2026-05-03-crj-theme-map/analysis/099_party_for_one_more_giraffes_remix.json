@@ -1,0 +1,12 @@
+{
+  "title": "Party for One (More Giraffes Remix)",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "099_party_for_one_more_giraffes_remix.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

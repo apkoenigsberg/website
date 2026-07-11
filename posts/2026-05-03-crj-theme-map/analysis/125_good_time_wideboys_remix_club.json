@@ -1,0 +1,11 @@
+{
+  "title": "Good Time (Wideboys Remix) [Club]",
+  "album": "Kiss: The Remix",
+  "filename": "125_good_time_wideboys_remix_club.json",
+  "themes": [
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "I Really Like You (Blasterjaxx Remix)",
+  "album": "E\u2022MO\u2022TION Remixed +",
+  "filename": "114_i_really_like_you_blasterjaxx_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Everything He Needs",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "087_everything_he_needs.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

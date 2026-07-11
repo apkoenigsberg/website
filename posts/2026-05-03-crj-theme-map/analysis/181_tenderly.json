@@ -1,0 +1,27 @@
+{
+  "title": "Tenderly",
+  "album": "Disco Sweat",
+  "filename": "181_tenderly.json",
+  "themes": [
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

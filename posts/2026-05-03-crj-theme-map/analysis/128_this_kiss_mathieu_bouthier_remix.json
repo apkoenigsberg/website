@@ -1,0 +1,11 @@
+{
+  "title": "This Kiss (Mathieu Bouthier Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "128_this_kiss_mathieu_bouthier_remix.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Worldly Matters",
+  "album": "Tug of War (Japan CD)",
+  "filename": "166_worldly_matters.json",
+  "themes": [
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "escapism",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    }
+  ]
+}

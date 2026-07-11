@@ -1,0 +1,27 @@
+{
+  "title": "Beach House",
+  "album": "The Loneliest Time",
+  "filename": "056_beach_house.json",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    }
+  ]
+}

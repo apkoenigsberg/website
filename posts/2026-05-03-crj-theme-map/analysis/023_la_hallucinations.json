@@ -1,0 +1,12 @@
+{
+  "title": "LA Hallucinations",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "023_la_hallucinations.json",
+  "themes": [
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "escapism", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

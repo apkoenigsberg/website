@@ -1,0 +1,23 @@
+{
+  "title": "Feels Like",
+  "album": "Disco Sweat",
+  "filename": "182_feels_like.json",
+  "themes": [
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    }
+  ]
+}

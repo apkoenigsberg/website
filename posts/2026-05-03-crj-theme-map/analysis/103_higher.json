@@ -1,0 +1,12 @@
+{
+  "title": "Higher",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "103_higher.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "self-worth", "sentiment": "positive" }
+  ]
+}

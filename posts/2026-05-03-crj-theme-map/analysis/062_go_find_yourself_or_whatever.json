@@ -1,0 +1,27 @@
+{
+  "title": "Go Find Yourself or Whatever",
+  "album": "The Loneliest Time",
+  "filename": "062_go_find_yourself_or_whatever.json",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

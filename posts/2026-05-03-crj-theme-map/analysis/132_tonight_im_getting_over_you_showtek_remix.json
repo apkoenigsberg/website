@@ -1,0 +1,11 @@
+{
+  "title": "Tonight I'm Getting Over You (Showtek Remix)",
+  "album": "Tonight I'm Getting Over You (Remixes)",
+  "filename": "132_tonight_im_getting_over_you_showtek_remix.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

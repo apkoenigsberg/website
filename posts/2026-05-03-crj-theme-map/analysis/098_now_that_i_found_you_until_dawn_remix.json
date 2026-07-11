@@ -1,0 +1,11 @@
+{
+  "title": "Now That I Found You (Until Dawn Remix)",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "098_now_that_i_found_you_until_dawn_remix.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" }
+  ]
+}

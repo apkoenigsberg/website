@@ -1,0 +1,11 @@
+{
+  "title": "Back of My Heart",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "034_back_of_my_heart.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" }
+  ]
+}

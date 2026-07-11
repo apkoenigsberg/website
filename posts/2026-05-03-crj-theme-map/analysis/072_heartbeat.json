@@ -1,0 +1,27 @@
+{
+  "title": "Heartbeat",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "072_heartbeat.json",
+  "themes": [
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    }
+  ]
+}

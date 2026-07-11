@@ -1,0 +1,12 @@
+{
+  "title": "Happy Not Knowing",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "088_happy_not_knowing.json",
+  "themes": [
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "unrequited-love", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" },
+    { "theme": "infatuation", "sentiment": "ambivalent" }
+  ]
+}

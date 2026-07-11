@@ -1,0 +1,12 @@
+{
+  "title": "I'll Be Your Girl",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "089_ill_be_your_girl.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "title": "Bends",
+  "album": "The Loneliest Time",
+  "filename": "057_bends.json",
+  "themes": [
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

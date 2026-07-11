@@ -1,0 +1,27 @@
+{
+  "title": "I Really Like You",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "016_i_really_like_you.json",
+  "themes": [
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    }
+  ]
+}

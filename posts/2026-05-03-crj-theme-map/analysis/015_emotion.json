@@ -1,0 +1,27 @@
+{
+  "title": "E•MO•TION",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "015_emotion.json",
+  "themes": [
+    {
+      "theme": "empowerment",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "positive"
+    }
+  ]
+}

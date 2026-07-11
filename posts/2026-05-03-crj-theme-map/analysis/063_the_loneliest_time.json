@@ -1,0 +1,27 @@
+{
+  "title": "The Loneliest Time",
+  "album": "The Loneliest Time",
+  "filename": "063_the_loneliest_time.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    }
+  ]
+}

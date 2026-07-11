@@ -1,0 +1,27 @@
+{
+  "title": "Anxious",
+  "album": "The Loneliest Time",
+  "filename": "064_anxious.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "negative"
+    }
+  ]
+}

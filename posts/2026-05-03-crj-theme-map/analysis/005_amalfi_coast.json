@@ -1,0 +1,19 @@
+{
+  "title": "Amalfi Coast",
+  "album": "CRJ7*",
+  "filename": "005_amalfi_coast.json",
+  "themes": [
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    }
+  ]
+}

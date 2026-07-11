@@ -1,0 +1,23 @@
+{
+  "title": "Your Garden",
+  "album": "CRJ7*",
+  "filename": "012_your_garden.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

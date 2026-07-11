@@ -1,0 +1,12 @@
+{
+  "title": "Curiosity (EP Version)",
+  "album": "Curiosity",
+  "filename": "158_curiosity_ep_version.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "ambivalent" }
+  ]
+}

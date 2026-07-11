@@ -1,5 +1,24 @@
 ---
 title: "About"
+toc: false
 ---
 
-This is a "hello world" example website built with [Quarto](https://quarto.org), the next-generation publishing system from [Posit](https://posit.co) (formerly RStudio).
+I'm Aaron Koenigsberg, Director of Analytics and Modeling at Fannie Mae, where I lead a 15+ person team supporting Treasury and Capital Markets — pricing, securitization, and credit risk transfer. I've spent fifteen years building analytical solutions and the last six leading the teams that build them: capital framework adoption, prepayment analytics, multi-objective pricing optimization, causal impact measurement, and the unglamorous work of getting models governed, validated, and into production.
+
+## Why this site exists
+
+A resume tells you what my teams delivered. It can't show you how I think through a problem, what my standards are for evidence, or whether I can still do the work myself. This site is meant to close that gap.
+
+It's also a demonstration of something more specific. Most of the analysis here is built through **AI-directed research**: I frame the question, set the analytical approach, review every intermediate result, and push back when something looks wrong — while an AI model writes and runs most of the code. That's a deliberate choice, not a shortcut. Directing machine collaborators is becoming a core analytics-leadership skill, and the way to judge whether someone can do it is to look at the output: is the question well-posed, is the method sound, are the conclusions honest about their own limits?
+
+Each post notes how it was made. The judgment — what to investigate, which results to trust, when the naive answer is wrong — is mine.
+
+## Background
+
+- **Fannie Mae, 2011–present.** Individual contributor → Data Science Manager → Director. Modeling, causal inference, and data engineering across loan servicing, capital markets, and credit risk. Early internal advocate for open-source analytics (R, Git, reproducible research) in a SAS-dominated environment.
+- **Toolkit.** R, Python, SQL, Git; Bayesian analysis and causal inference; forecasting and anomaly detection; optimization; generative-AI-enabled workflows.
+- **Education.** B.S. Economics, The George Washington University; minors in Math and Chinese Language and Literature.
+
+## Contact
+
+[apkoenigsberg@gmail.com](mailto:apkoenigsberg@gmail.com) · [GitHub](https://github.com/apkoenigsberg)

@@ -1,0 +1,12 @@
+{
+  "title": "Too Much",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "090_too_much.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "euphoria", "sentiment": "ambivalent" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

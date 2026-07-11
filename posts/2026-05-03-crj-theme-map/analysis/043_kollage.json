@@ -1,0 +1,12 @@
+{
+  "title": "Kollage",
+  "album": "The Loveliest Time",
+  "filename": "043_kollage.json",
+  "themes": [
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

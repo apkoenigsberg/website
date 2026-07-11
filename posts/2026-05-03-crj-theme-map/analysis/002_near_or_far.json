@@ -1,0 +1,15 @@
+{
+  "title": "Near Or Far",
+  "album": "CRJ7*",
+  "filename": "002_near_or_far.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

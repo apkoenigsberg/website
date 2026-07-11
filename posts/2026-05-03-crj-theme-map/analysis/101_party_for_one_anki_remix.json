@@ -1,0 +1,12 @@
+{
+  "title": "Party for One (Anki Remix)",
+  "album": "Party for One (Remixes)",
+  "filename": "101_party_for_one_anki_remix.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

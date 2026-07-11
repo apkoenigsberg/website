@@ -1,0 +1,11 @@
+{
+  "title": "Curiosity",
+  "album": "Kiss (Tour Edition)",
+  "filename": "137_curiosity.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

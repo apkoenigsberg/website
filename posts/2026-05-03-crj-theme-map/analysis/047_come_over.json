@@ -1,0 +1,11 @@
+{
+  "title": "Come Over",
+  "album": "The Loveliest Time",
+  "filename": "047_come_over.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" }
+  ]
+}

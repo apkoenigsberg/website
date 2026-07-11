@@ -1,0 +1,27 @@
+{
+  "title": "One Life",
+  "album": "CRJ7*",
+  "filename": "010_one_life.json",
+  "themes": [
+    {
+      "theme": "self-worth",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Call Me Maybe (Almighty Mix) [Radio Edit]",
+  "album": "Kiss: The Remix",
+  "filename": "121_call_me_maybe_almighty_mix_radio_edit.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

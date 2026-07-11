@@ -1,0 +1,11 @@
+{
+  "title": "Your Heart Is a Muscle",
+  "album": "Kiss (Tour Edition)",
+  "filename": "144_your_heart_is_a_muscle.json",
+  "themes": [
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

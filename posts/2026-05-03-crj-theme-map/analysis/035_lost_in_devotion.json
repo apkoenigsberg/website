@@ -1,0 +1,12 @@
+{
+  "title": "Lost in Devotion",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "035_lost_in_devotion.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

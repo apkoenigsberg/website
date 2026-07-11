@@ -1,0 +1,27 @@
+{
+  "title": "Run Away with Me",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "014_run_away_with_me.json",
+  "themes": [
+    {
+      "theme": "escapism",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

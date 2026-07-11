@@ -1,0 +1,23 @@
+{
+  "title": "Sour Candy",
+  "album": "Tug of War (Japan CD)",
+  "filename": "172_sour_candy.json",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    }
+  ]
+}

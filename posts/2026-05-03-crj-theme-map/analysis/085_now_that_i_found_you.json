@@ -1,0 +1,12 @@
+{
+  "title": "Now That I Found You",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "085_now_that_i_found_you.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

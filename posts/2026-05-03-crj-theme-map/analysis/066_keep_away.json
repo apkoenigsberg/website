@@ -1,0 +1,27 @@
+{
+  "title": "Keep Away",
+  "album": "The Loneliest Time",
+  "filename": "066_keep_away.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "title": "In My Bedroom",
+  "album": "Dear You - EP",
+  "filename": "175_in_my_bedroom.json",
+  "themes": [
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    }
+  ]
+}

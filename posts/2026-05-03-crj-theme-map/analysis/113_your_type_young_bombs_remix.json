@@ -1,0 +1,13 @@
+{
+  "title": "Your Type (Young Bombs Remix)",
+  "album": "E\u2022MO\u2022TION Remixed +",
+  "filename": "113_your_type_young_bombs_remix.json",
+  "themes": [
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "self-worth", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

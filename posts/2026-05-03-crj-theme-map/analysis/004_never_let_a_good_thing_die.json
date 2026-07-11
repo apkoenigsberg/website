@@ -1,0 +1,19 @@
+{
+  "title": "Never Let a Good Thing Die",
+  "album": "CRJ7*",
+  "filename": "004_never_let_a_good_thing_die.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    }
+  ]
+}

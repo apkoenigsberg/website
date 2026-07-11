@@ -1,0 +1,23 @@
+{
+  "title": "Pieces",
+  "album": "CRJ7*",
+  "filename": "000_pieces.json",
+  "themes": [
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Automatically in Love",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "092_automatically_in_love.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

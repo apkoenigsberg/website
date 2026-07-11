@@ -1,0 +1,12 @@
+{
+  "title": "Tug of War",
+  "album": "Tug of War (Japan CD)",
+  "filename": "161_tug_of_war.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" },
+    { "theme": "infatuation", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "negative" }
+  ]
+}

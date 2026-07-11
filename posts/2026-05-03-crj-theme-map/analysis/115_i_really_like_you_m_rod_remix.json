@@ -1,0 +1,11 @@
+{
+  "title": "I Really Like You (M. Rod Remix)",
+  "album": "E\u2022MO\u2022TION Remixed +",
+  "filename": "115_i_really_like_you_m_rod_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

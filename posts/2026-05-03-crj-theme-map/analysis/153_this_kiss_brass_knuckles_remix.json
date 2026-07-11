@@ -1,0 +1,12 @@
+{
+  "title": "This Kiss (Brass Knuckles Remix)",
+  "album": "Kiss (Tour Edition)",
+  "filename": "153_this_kiss_brass_knuckles_remix.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "infatuation", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "ambivalent" }
+  ]
+}

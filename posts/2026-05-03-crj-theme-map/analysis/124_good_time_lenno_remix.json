@@ -1,0 +1,11 @@
+{
+  "title": "Good Time (Lenno Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "124_good_time_lenno_remix.json",
+  "themes": [
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

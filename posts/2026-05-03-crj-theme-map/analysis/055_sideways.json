@@ -1,0 +1,27 @@
+{
+  "title": "Sideways",
+  "album": "The Loneliest Time",
+  "filename": "055_sideways.json",
+  "themes": [
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "positive"
+    }
+  ]
+}

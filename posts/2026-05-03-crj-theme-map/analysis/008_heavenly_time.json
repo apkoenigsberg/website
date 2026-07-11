@@ -1,0 +1,31 @@
+{
+  "title": "Heavenly Time",
+  "album": "CRJ7*",
+  "filename": "008_heavenly_time.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "melancholy",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "escapism",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

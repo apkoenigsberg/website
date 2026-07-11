@@ -1,0 +1,27 @@
+{
+  "title": "Ricochet",
+  "album": "Disco Sweat",
+  "filename": "177_ricochet.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

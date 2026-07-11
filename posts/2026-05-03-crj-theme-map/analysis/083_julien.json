@@ -1,0 +1,12 @@
+{
+  "title": "Julien",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "083_julien.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "obsession", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "nostalgia", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" }
+  ]
+}

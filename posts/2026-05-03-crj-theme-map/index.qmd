@@ -1,0 +1,180 @@
+---
+title: "Carly Rae Jepsen's Lyrical Themes, Mapped"
+date: "2026-05-03"
+categories: [music, nlp, python, claude-api]
+description: "A theme analysis of 183 CRJ songs across her full discography using Claude API and a controlled vocabulary."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+[intro — to fill in]
+
+---
+
+```{python}
+#| label: setup
+
+import json
+from pathlib import Path
+import pandas as pd
+
+REMAP = {
+    "Tug of War (Japan CD)":                  "Tug of War",
+    "Kiss (Tour Edition)":                    "Kiss",
+    "E•MO•TION (Japanese Edition)":           "E·MO·TION",
+    "E•MO•TION: Side B+ (Japan Exclusive)":   "E·MO·TION: Side B",
+    "Dedicated (Japanese Edition)":           "Dedicated",
+    "Dedicated Side B (Japanese Edition)":    "Dedicated Side B",
+}
+
+ALBUM_ORDER = [
+    "Tug of War",
+    "Dear You - EP",
+    "Disco Sweat",
+    "Curiosity",
+    "Call Me Maybe - EP",
+    "Kiss",
+    "E·MO·TION",
+    "E·MO·TION: Side B",
+    "Dedicated",
+    "Dedicated Side B",
+    "The Loneliest Time",
+    "The Loveliest Time",
+    "E·MO·TION (10th Anniversary Edition)",
+    "CRJ7*",
+]
+
+records = [
+    json.loads(f.read_text(encoding="utf-8"))
+    for f in sorted(Path("analysis").glob("*.json"))
+]
+
+rows = []
+for rec in records:
+    album = REMAP.get(rec.get("album", ""), rec.get("album", ""))
+    if album not in ALBUM_ORDER:
+        continue
+    for t in rec.get("themes", []):
+        rows.append({
+            "album":     album,
+            "theme":     t["theme"],
+            "title":     rec["title"],
+            "sentiment": t.get("sentiment", "ambivalent"),
+        })
+
+df = pd.DataFrame(rows)
+
+theme_order = (
+    df.groupby("theme")["title"]
+    .nunique()
+    .sort_values(ascending=False)
+    .index.tolist()
+)
+
+album_totals = df.groupby("album")["title"].nunique().to_dict()
+
+cells = [
+    {
+        "album": album,
+        "theme": theme,
+        "count": int(df[(df.album == album) & (df.theme == theme)]["title"].nunique()),
+        "songs": df[(df.album == album) & (df.theme == theme)]["title"].unique().tolist(),
+    }
+    for album in ALBUM_ORDER
+    for theme in theme_order
+]
+
+ojs_define(
+    chart_data={
+        "albums":      ALBUM_ORDER,
+        "themes":      theme_order,
+        "cells":       cells,
+        "albumTotals": {k: int(v) for k, v in album_totals.items()},
+    }
+)
+```
+
+## Theme prevalence by album
+
+Each cell shows the fraction of an album's songs that carry a given theme. Themes are ordered top-to-bottom by total catalog frequency.
+
+```{ojs}
+//| label: heatmap
+
+enriched = chart_data.cells.map(d => ({
+  ...d,
+  pct: chart_data.albumTotals[d.album] > 0
+    ? d.count / chart_data.albumTotals[d.album]
+    : 0
+}))
+
+Plot.plot({
+  width: 900,
+  height: 450,
+  marginLeft: 130,
+  marginBottom: 140,
+  x: {
+    domain: chart_data.albums,
+    tickRotate: -50,
+    label: null,
+    tickSize: 0,
+  },
+  y: {
+    domain: chart_data.themes,
+    label: null,
+    tickSize: 0,
+  },
+  color: {
+    type: "linear",
+    scheme: "purples",
+    domain: [0, 1],
+    label: "% of album songs",
+    legend: true,
+    tickFormat: "%",
+  },
+  marks: [
+    Plot.cell(enriched, {
+      x: "album",
+      y: "theme",
+      fill: d => d.count > 0 ? d.pct : null,
+      inset: 0.5,
+    }),
+    Plot.tip(
+      enriched.filter(d => d.count > 0),
+      Plot.pointer({
+        x: "album",
+        y: "theme",
+        title: d =>
+          `${d.album} — ${d.theme}\n` +
+          `${d.count} songs (${Math.round(d.pct * 100)}%)\n\n` +
+          d.songs.join("\n"),
+      })
+    ),
+  ],
+})
+```
+
+## Findings
+
+[findings — to fill in]
+
+---
+
+## Method
+
+**Data collection.** 183 CRJ songs with lyrics were scraped from the Genius API using `lyricsgenius`. 197 songs were identified across 42 releases; 14 were excluded (4 from *CRJ7\** not yet indexed on Genius; the rest are remixes or instrumentals with no lyrics page).
+
+**Theme extraction.** Each song was sent to Claude Haiku (`claude-haiku-4-5-20251001`) with a prompt requiring it to identify 3–6 themes from a fixed controlled vocabulary of 20 terms and assign a sentiment (`positive`, `negative`, `ambivalent`) to each. 10 Claude Code sub-agents processed the catalog in parallel batches of ~18 songs, writing per-song JSON results to `analysis/`.
+
+**Controlled vocabulary.** `longing` · `desire` · `heartbreak` · `obsession` · `infatuation` · `self-worth` · `vulnerability` · `joy` · `euphoria` · `fantasy` · `escapism` · `nostalgia` · `resilience` · `empowerment` · `melancholy` · `intimacy` · `unrequited-love` · `new-love` · `loss` · `connection`
+
+**Visualization.** The heatmap covers 14 canonical studio albums and EPs (remixes, tour editions, and standalone singles excluded). Cell values are the fraction of an album's songs that carry each theme. Albums are ordered chronologically; themes are ordered by total catalog frequency.

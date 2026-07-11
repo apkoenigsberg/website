@@ -1,0 +1,12 @@
+{
+  "title": "First Time",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "102_first_time.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

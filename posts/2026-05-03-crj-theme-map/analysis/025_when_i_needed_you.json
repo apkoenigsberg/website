@@ -1,0 +1,11 @@
+{
+  "title": "When I Needed You",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "025_when_i_needed_you.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

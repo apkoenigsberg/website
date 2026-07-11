@@ -1,0 +1,27 @@
+{
+  "title": "Ice Cream Cone",
+  "album": "CRJ7*",
+  "filename": "011_ice_cream_cone.json",
+  "themes": [
+    {
+      "theme": "infatuation",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "unrequited-love",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

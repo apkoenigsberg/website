@@ -1,0 +1,11 @@
+{
+  "title": "Want You In My Room",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "086_want_you_in_my_room.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Run Away With Me (Rostam Remix)",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "037_run_away_with_me_rostam_remix.json",
+  "themes": [
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "fantasy", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" }
+  ]
+}

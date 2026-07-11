@@ -1,0 +1,11 @@
+{
+  "title": "Never Get to Hold You",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "029_never_get_to_hold_you.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

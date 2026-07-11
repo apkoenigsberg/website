@@ -1,0 +1,12 @@
+{
+  "title": "More Than a Memory",
+  "album": "Kiss (Tour Edition)",
+  "filename": "138_more_than_a_memory.json",
+  "themes": [
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

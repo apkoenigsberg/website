@@ -1,0 +1,11 @@
+{
+  "title": "Store",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "108_store.json",
+  "themes": [
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "escapism", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

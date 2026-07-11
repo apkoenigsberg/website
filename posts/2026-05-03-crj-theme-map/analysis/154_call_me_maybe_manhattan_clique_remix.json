@@ -1,0 +1,12 @@
+{
+  "title": "Call Me Maybe (Manhattan Clique Remix)",
+  "album": "Call Me Maybe (Remixes) (Vinyl Version)",
+  "filename": "154_call_me_maybe_manhattan_clique_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

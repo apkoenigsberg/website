@@ -1,0 +1,11 @@
+{
+  "title": "Cut to the Feeling",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "031_cut_to_the_feeling.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" }
+  ]
+}

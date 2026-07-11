@@ -1,0 +1,12 @@
+{
+  "title": "Just a Step Away",
+  "album": "Curiosity",
+  "filename": "159_just_a_step_away.json",
+  "themes": [
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" }
+  ]
+}

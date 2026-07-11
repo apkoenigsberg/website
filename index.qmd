@@ -7,3 +7,5 @@ listing:
   categories: true
   feed: true
 ---
+
+Working analyses in Python and R — trade statistics, forecasting, anomaly detection, and applied NLP — most of them built by directing an AI research assistant and reviewing its work. More about the approach [here](about.qmd).

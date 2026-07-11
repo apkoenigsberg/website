@@ -1,0 +1,12 @@
+{
+  "title": "Call Me Maybe (Almighty Club Mix)",
+  "album": "Call Me Maybe (Remixes) (Vinyl Version)",
+  "filename": "155_call_me_maybe_almighty_club_mix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

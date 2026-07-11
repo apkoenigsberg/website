@@ -1,0 +1,11 @@
+{
+  "title": "For Sure",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "096_for_sure.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "ambivalent" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

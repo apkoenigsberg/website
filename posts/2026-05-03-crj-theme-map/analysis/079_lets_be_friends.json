@@ -1,0 +1,11 @@
+{
+  "title": "Let's Be Friends",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "079_lets_be_friends.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "ambivalent" },
+    { "theme": "melancholy", "sentiment": "ambivalent" }
+  ]
+}

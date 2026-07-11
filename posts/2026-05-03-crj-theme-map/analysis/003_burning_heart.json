@@ -1,0 +1,19 @@
+{
+  "title": "Burning Heart",
+  "album": "CRJ7*",
+  "filename": "003_burning_heart.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    }
+  ]
+}

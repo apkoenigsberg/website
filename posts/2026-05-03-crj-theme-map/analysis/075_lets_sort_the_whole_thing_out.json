@@ -1,0 +1,12 @@
+{
+  "title": "Let's Sort the Whole Thing Out",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "075_lets_sort_the_whole_thing_out.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" }
+  ]
+}

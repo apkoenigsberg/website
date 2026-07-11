@@ -1,0 +1,11 @@
+{
+  "title": "Right Words Wrong Time",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "094_right_words_wrong_time.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" }
+  ]
+}

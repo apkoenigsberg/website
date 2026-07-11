@@ -1,0 +1,23 @@
+{
+  "title": "I Still Wonder",
+  "album": "Tug of War (Japan CD)",
+  "filename": "170_i_still_wonder.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    }
+  ]
+}

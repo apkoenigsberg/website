@@ -1,0 +1,12 @@
+{
+  "title": "Drive",
+  "album": "Kiss (Tour Edition)",
+  "filename": "145_drive.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" }
+  ]
+}

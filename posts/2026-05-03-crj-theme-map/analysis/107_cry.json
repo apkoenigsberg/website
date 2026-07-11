@@ -1,0 +1,11 @@
+{
+  "title": "Cry",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "107_cry.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" }
+  ]
+}

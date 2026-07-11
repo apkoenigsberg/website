@@ -1,0 +1,12 @@
+{
+  "title": "Solo",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "077_solo.json",
+  "themes": [
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "self-worth", "sentiment": "positive" },
+    { "theme": "melancholy", "sentiment": "negative" }
+  ]
+}

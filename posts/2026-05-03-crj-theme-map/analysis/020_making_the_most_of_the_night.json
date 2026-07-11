@@ -1,0 +1,11 @@
+{
+  "title": "Making the Most of the Night",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "020_making_the_most_of_the_night.json",
+  "themes": [
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" }
+  ]
+}

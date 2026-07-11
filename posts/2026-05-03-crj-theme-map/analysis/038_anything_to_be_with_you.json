@@ -1,0 +1,11 @@
+{
+  "title": "Anything to Be With You",
+  "album": "The Loveliest Time",
+  "filename": "038_anything_to_be_with_you.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" }
+  ]
+}

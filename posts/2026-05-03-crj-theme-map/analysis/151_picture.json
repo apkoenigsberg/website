@@ -1,0 +1,12 @@
+{
+  "title": "Picture",
+  "album": "Kiss (Tour Edition)",
+  "filename": "151_picture.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "I Really Like You (Liam Keegan Remix)",
+  "album": "E\u2022MO\u2022TION (Japanese Edition)",
+  "filename": "118_i_really_like_you_liam_keegan_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

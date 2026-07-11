@@ -1,0 +1,27 @@
+{
+  "title": "We Get By",
+  "album": "CRJ7*",
+  "filename": "001_we_get_by.json",
+  "themes": [
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "fantasy",
+      "sentiment": "positive"
+    }
+  ]
+}

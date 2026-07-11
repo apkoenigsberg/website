@@ -1,0 +1,11 @@
+{
+  "title": "Guardian Angel",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "033_guardian_angel.json",
+  "themes": [
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" }
+  ]
+}

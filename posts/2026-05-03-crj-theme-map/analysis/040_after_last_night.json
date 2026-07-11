@@ -1,0 +1,11 @@
+{
+  "title": "After Last Night",
+  "album": "The Loveliest Time",
+  "filename": "040_after_last_night.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" }
+  ]
+}

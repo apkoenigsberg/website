@@ -1,0 +1,31 @@
+{
+  "title": "This Love Isn't Crazy",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "067_this_love_isnt_crazy.json",
+  "themes": [
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

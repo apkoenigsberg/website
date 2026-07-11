@@ -1,0 +1,12 @@
+{
+  "title": "Call Me Maybe (Coyote Kisses Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "123_call_me_maybe_coyote_kisses_remix.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

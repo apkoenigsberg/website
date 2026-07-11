@@ -1,0 +1,27 @@
+{
+  "title": "Hungry Heart",
+  "album": "Disco Sweat",
+  "filename": "178_hungry_heart.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    }
+  ]
+}

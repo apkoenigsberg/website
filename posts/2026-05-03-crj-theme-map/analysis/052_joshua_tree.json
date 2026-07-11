@@ -1,0 +1,11 @@
+{
+  "title": "Joshua Tree",
+  "album": "The Loneliest Time",
+  "filename": "052_joshua_tree.json",
+  "themes": [
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "empowerment", "sentiment": "positive" },
+    { "theme": "fantasy", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" }
+  ]
+}

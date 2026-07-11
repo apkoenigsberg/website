@@ -1,0 +1,12 @@
+{
+  "title": "Put It to Rest",
+  "album": "The Loveliest Time",
+  "filename": "048_put_it_to_rest.json",
+  "themes": [
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "negative" }
+  ]
+}

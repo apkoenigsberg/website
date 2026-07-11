@@ -1,0 +1,12 @@
+{
+  "title": "Money and the Ego",
+  "album": "Tug of War (Japan CD)",
+  "filename": "162_money_and_the_ego.json",
+  "themes": [
+    { "theme": "self-worth", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "resilience", "sentiment": "positive" },
+    { "theme": "melancholy", "sentiment": "negative" }
+  ]
+}

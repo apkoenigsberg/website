@@ -1,0 +1,11 @@
+{
+  "title": "Tonight I'm Getting Over You (Twice as Nice Remix)",
+  "album": "Kiss: The Remix",
+  "filename": "129_tonight_im_getting_over_you_twice_as_nice_remix.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "resilience", "sentiment": "positive" }
+  ]
+}

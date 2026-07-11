@@ -1,0 +1,12 @@
+{
+  "title": "The Sound",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "091_the_sound.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" }
+  ]
+}

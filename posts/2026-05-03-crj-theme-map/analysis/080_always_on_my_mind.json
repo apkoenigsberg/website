@@ -1,0 +1,12 @@
+{
+  "title": "Always On My Mind",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "080_always_on_my_mind.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

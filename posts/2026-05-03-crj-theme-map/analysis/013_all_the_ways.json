@@ -1,0 +1,27 @@
+{
+  "title": "All The Ways",
+  "album": "CRJ7*",
+  "filename": "013_all_the_ways.json",
+  "themes": [
+    {
+      "theme": "vulnerability",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "self-worth",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "resilience",
+      "sentiment": "positive"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "title": "No You",
+  "album": "Disco Sweat",
+  "filename": "179_no_you.json",
+  "themes": [
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

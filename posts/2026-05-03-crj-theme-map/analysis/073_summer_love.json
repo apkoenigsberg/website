@@ -1,0 +1,12 @@
+{
+  "title": "Summer Love",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "073_summer_love.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "joy", "sentiment": "positive" },
+    { "theme": "euphoria", "sentiment": "positive" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "title": "Tug of War (Dave \u201cRave\u201d Ogilvie Remix)",
+  "album": "Tug of War (Japan CD)",
+  "filename": "171_tug_of_war_dave_rave_ogilvie_remix.json",
+  "themes": [
+    {
+      "theme": "obsession",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

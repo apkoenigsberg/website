@@ -1,0 +1,27 @@
+{
+  "title": "Can I Cut In",
+  "album": "CRJ7*",
+  "filename": "009_can_i_cut_in.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "infatuation",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    }
+  ]
+}

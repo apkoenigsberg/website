@@ -1,0 +1,27 @@
+{
+  "title": "Tell Me",
+  "album": "Tug of War (Japan CD)",
+  "filename": "163_tell_me.json",
+  "themes": [
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "unrequited-love",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "obsession",
+      "sentiment": "ambivalent"
+    }
+  ]
+}

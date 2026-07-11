@@ -1,0 +1,12 @@
+{
+  "title": "Don't Speak (Recorded at Spotify Studios, NYC)",
+  "album": "Spotify Singles",
+  "filename": "082_dont_speak_recorded_at_spotify_studios_nyc.json",
+  "themes": [
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "melancholy", "sentiment": "negative" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" }
+  ]
+}

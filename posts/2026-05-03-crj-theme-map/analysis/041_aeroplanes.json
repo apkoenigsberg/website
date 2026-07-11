@@ -1,0 +1,12 @@
+{
+  "title": "Aeroplanes",
+  "album": "The Loveliest Time",
+  "filename": "041_aeroplanes.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "unrequited-love", "sentiment": "negative" },
+    { "theme": "fantasy", "sentiment": "ambivalent" },
+    { "theme": "loss", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" }
+  ]
+}

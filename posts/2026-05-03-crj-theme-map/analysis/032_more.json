@@ -1,0 +1,11 @@
+{
+  "title": "More",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "032_more.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "fantasy", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "new-love", "sentiment": "ambivalent" }
+  ]
+}

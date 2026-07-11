@@ -1,0 +1,11 @@
+{
+  "title": "Call Me Maybe",
+  "album": "Kiss (Tour Edition)",
+  "filename": "136_call_me_maybe.json",
+  "themes": [
+    { "theme": "infatuation", "sentiment": "positive" },
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "positive" }
+  ]
+}

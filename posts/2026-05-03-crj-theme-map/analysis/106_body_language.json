@@ -1,0 +1,11 @@
+{
+  "title": "Body Language",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "106_body_language.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "negative" },
+    { "theme": "vulnerability", "sentiment": "negative" },
+    { "theme": "intimacy", "sentiment": "ambivalent" }
+  ]
+}

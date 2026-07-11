@@ -1,0 +1,23 @@
+{
+  "title": "Muscle Memory",
+  "album": "CRJ7*",
+  "filename": "006_muscle_memory.json",
+  "themes": [
+    {
+      "theme": "heartbreak",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "nostalgia",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "negative"
+    },
+    {
+      "theme": "loss",
+      "sentiment": "negative"
+    }
+  ]
+}

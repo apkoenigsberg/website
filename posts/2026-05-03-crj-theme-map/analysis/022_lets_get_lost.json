@@ -1,0 +1,11 @@
+{
+  "title": "Let's Get Lost",
+  "album": "E\u2022MO\u2022TION (10th Anniversary Edition)",
+  "filename": "022_lets_get_lost.json",
+  "themes": [
+    { "theme": "new-love", "sentiment": "positive" },
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "escapism", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" }
+  ]
+}

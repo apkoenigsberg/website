@@ -1,0 +1,11 @@
+{
+  "title": "The One",
+  "album": "E\u2022MO\u2022TION: Side B+ (Japan Exclusive)",
+  "filename": "104_the_one.json",
+  "themes": [
+    { "theme": "intimacy", "sentiment": "ambivalent" },
+    { "theme": "desire", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" },
+    { "theme": "escapism", "sentiment": "ambivalent" }
+  ]
+}

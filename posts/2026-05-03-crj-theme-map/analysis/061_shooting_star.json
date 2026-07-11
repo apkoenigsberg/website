@@ -1,0 +1,27 @@
+{
+  "title": "Shooting Star",
+  "album": "The Loneliest Time",
+  "filename": "061_shooting_star.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    }
+  ]
+}

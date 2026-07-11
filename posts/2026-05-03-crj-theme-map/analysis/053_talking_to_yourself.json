@@ -1,0 +1,11 @@
+{
+  "title": "Talking to Yourself",
+  "album": "The Loneliest Time",
+  "filename": "053_talking_to_yourself.json",
+  "themes": [
+    { "theme": "obsession", "sentiment": "ambivalent" },
+    { "theme": "heartbreak", "sentiment": "negative" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "self-worth", "sentiment": "negative" }
+  ]
+}

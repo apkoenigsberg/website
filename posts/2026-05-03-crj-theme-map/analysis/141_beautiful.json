@@ -1,0 +1,11 @@
+{
+  "title": "Beautiful",
+  "album": "Kiss (Tour Edition)",
+  "filename": "141_beautiful.json",
+  "themes": [
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

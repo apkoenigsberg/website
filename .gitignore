@@ -11,6 +11,24 @@
 .RData
 .Rproj.user/
 
+# IDE / local config
+.vscode/
+
 # OS
 .DS_Store
 Thumbs.db
+
+**/*.quarto_ipynb
+
+# Local secrets
+.env
+CLAUDE.md
+
+# Claude Code local settings
+.claude/
+
+# Local analysis scratch directory
+outputs/
+
+# Large raw data downloads (>50 MB)
+dataset_*.csv

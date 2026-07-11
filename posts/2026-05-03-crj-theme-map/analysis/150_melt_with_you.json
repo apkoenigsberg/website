@@ -1,0 +1,12 @@
+{
+  "title": "Melt with You",
+  "album": "Kiss (Tour Edition)",
+  "filename": "150_melt_with_you.json",
+  "themes": [
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" },
+    { "theme": "nostalgia", "sentiment": "ambivalent" },
+    { "theme": "escapism", "sentiment": "ambivalent" },
+    { "theme": "vulnerability", "sentiment": "ambivalent" }
+  ]
+}

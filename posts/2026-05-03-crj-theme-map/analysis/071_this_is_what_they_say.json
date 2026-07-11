@@ -1,0 +1,27 @@
+{
+  "title": "This Is What They Say",
+  "album": "Dedicated Side B (Japanese Edition)",
+  "filename": "071_this_is_what_they_say.json",
+  "themes": [
+    {
+      "theme": "new-love",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "euphoria",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "joy",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    }
+  ]
+}

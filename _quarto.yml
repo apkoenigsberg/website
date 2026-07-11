@@ -1,19 +1,27 @@
 project:
   type: website
   output-dir: _site
+  render:
+    - "*.qmd"
+    - "posts/**/index.qmd"
 
 website:
-  title: "A Quarto Website"
+  title: "Aaron Koenigsberg"
+  site-url: https://apkoenigsberg.com
+  description: "Analytics, modeling, and AI-directed research — a working portfolio."
   navbar:
     left:
       - href: index.qmd
-        text: Home
+        text: Posts
       - href: about.qmd
         text: About
     right:
       - icon: github
-        href: https://github.com/
+        href: https://github.com/apkoenigsberg
         aria-label: GitHub
+      - icon: envelope
+        href: mailto:apkoenigsberg@gmail.com
+        aria-label: Email
 
 format:
   html:

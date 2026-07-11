@@ -1,0 +1,27 @@
+{
+  "title": "Gimmie Love",
+  "album": "E•MO•TION (10th Anniversary Edition)",
+  "filename": "017_gimmie_love.json",
+  "themes": [
+    {
+      "theme": "desire",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "longing",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "vulnerability",
+      "sentiment": "ambivalent"
+    },
+    {
+      "theme": "connection",
+      "sentiment": "positive"
+    },
+    {
+      "theme": "intimacy",
+      "sentiment": "positive"
+    }
+  ]
+}

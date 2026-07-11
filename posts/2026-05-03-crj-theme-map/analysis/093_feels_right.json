@@ -1,0 +1,11 @@
+{
+  "title": "Feels Right",
+  "album": "Dedicated (Japanese Edition)",
+  "filename": "093_feels_right.json",
+  "themes": [
+    { "theme": "desire", "sentiment": "positive" },
+    { "theme": "intimacy", "sentiment": "positive" },
+    { "theme": "connection", "sentiment": "positive" },
+    { "theme": "longing", "sentiment": "ambivalent" }
+  ]
+}
